@@ -18,9 +18,20 @@ float cameraUpZ = 0.0f; // direção "para cima" da câmera no eixo Z
 float cameraRotateX = 0.0f; // rotação horizontal da câmera
 float cameraRotateY = 0.0f; // rotação vertical da câmera
 
+float comprimentoMaximo = 30.0; //Comprimeneto do lab
+float larguraMaxima = -30.0; // largura do lab
+
 void init(); // Função de inicialização
 void renderScene(); // Função de renderização da cena
 void keyboard(unsigned char key, int x, int y); // Função de entrada do teclado
+
+//PARTES LAB
+void parede();
+void chao();
+
+//OBJETOS
+void fechadura();
+void porta();
 
 int main(int argc, char** argv) {
     glutInit(&argc, argv); // Inicializa o GLUT
@@ -59,43 +70,14 @@ void renderScene() { // Função de renderização da cena
     // Desenhe um cubo colorido
     glPushMatrix(); // Salva a matriz atual na pilha de matrizes.
     glTranslatef(0.0f, 0.0f, -5.0f); // Transla a cena para a posição (-5, 0, 0).
+
+    chao();
+    parede();
+    fechadura();
+    porta();
+
     glBegin(GL_QUADS); //  Inicia a definição de um conjunto de quadriláteros.
-        //Face da frente
-        glColor3f(1.0,0.0,0.0);
-        glVertex3f(-10.0,10.0,10.0);
-        glVertex3f(-10.0,-10.0,10.0);
-        glVertex3f(10.0,-10.0,10.0);
-        glVertex3f(10.0,10.0,10.0);
-        //Face de trás
-        glColor3f(0.0,1.0,0.0);
-        glVertex3f(10.0,10.0,-10.0);
-        glVertex3f(10.0,-10.0,-10.0);
-        glVertex3f(-10.0,-10.0,-10.0);
-        glVertex3f(-10.0,10.0,-10.0);
-        //Face da direita
-        glColor3f(0.0,0.0,1.0);
-        glVertex3f(10.0,10.0,10.0);
-        glVertex3f(10.0,-10.0,10.0);
-        glVertex3f(10.0,-10.0,-10.0);
-        glVertex3f(10.0,10.0,-10.0);
-        //Face da esquerda
-        glColor3f(1.0,1.0,0.0);
-        glVertex3f(-10.0,10.0,-10.0);
-        glVertex3f(-10.0,-10.0,-10.0);
-        glVertex3f(-10.0,-10.0,10.0);
-        glVertex3f(-10.0,10.0,10.0);
-        //Face de cima
-        glColor3f(0.0,1.0,1.0);
-        glVertex3f(-10.0,10.0,-10.0);
-        glVertex3f(-10.0,10.0,10.0);
-        glVertex3f(10.0,10.0,10.0);
-        glVertex3f(10.0,10.0,-10.0);
-        //Face de baixo
-        glColor3f(1.0,0.0,1.0);
-        glVertex3f(-10.0,-10.0,-10.0);
-        glVertex3f(-10.0,-10.0,10.0);
-        glVertex3f(10.0,-10.0,10.0);
-        glVertex3f(10.0,-10.0,-10.0);
+
     glEnd();
 
     glPopMatrix(); // Remove a matriz de transformação mais recente da pilha de matrizes de transformação do OpenGL. É importante usar essa função após desenhar um objeto com transformações aplicadas para evitar que essas transformações sejam aplicadas a outros objetos desenhados posteriormente
@@ -109,15 +91,15 @@ void keyboard(unsigned char key, int x, int y) {
     float cameraRotationSpeed = 5.0f; // Velocidade de rotação da câmera
 
     switch (key) {
-    // Aperte a ou A, para movimentar a camera para esquerda
-    case 'a':
-    case 'A':
-        cameraPosX -= cameraSpeed * cameraFrontZ;
-        cameraPosZ += cameraSpeed * cameraFrontX;
-        break;
     // Aperte d ou D, para movimentar a camera para direita
     case 'd':
     case 'D':
+        cameraPosX -= cameraSpeed * cameraFrontZ;
+        cameraPosZ += cameraSpeed * cameraFrontX;
+        break;
+    // Aperte a ou A, para movimentar a camera para esquerda
+    case 'a':
+    case 'A':
         cameraPosX += cameraSpeed * cameraFrontZ;
         cameraPosZ -= cameraSpeed * cameraFrontX;
         break;
@@ -134,26 +116,26 @@ void keyboard(unsigned char key, int x, int y) {
         cameraPosZ -= cameraSpeed * cameraFrontZ;
         break;
     // Aperte q ou Q, para rotacionar a câmera para a esquerda
-    case 'q':
-    case 'Q':
+    case 'e':
+    case 'E':
         cameraRotateX += cameraRotationSpeed;
         break;
     // Aperte e ou E, para rotacionar a câmera para a direita
-    case 'e':
-    case 'E':
+    case 'q':
+    case 'Q':
         cameraRotateX -= cameraRotationSpeed;
         break;
-    // Aperte c ou C, para rotacionar a câmera para a cima
-    case 'c':
-    case 'C':
+    // Aperte b ou B, para rotacionar a câmera para a baixo
+    case 'b':
+    case 'B':
         cameraRotateY += cameraRotationSpeed;
         if (cameraRotateY > 89.0f) {
             cameraRotateY = 89.0f;
         }
         break;
-    // Aperte b ou B, para rotacionar a câmera para a baixo
-    case 'b':
-    case 'B':
+    // Aperte c ou C, para rotacionar a câmera para a cima
+    case 'c':
+    case 'C':
         cameraRotateY -= cameraRotationSpeed;
         if (cameraRotateY < -89.0f) {
             cameraRotateY = -89.0f;
@@ -164,5 +146,252 @@ void keyboard(unsigned char key, int x, int y) {
         break;
     }
     glutPostRedisplay(); 
+
+}
+
+//OBJETOS
+void parede(){
+    //PAREDE
+    float espessuraParede = 1.5f;
+
+    //FACE FRENTE
+    //FACE ESQUERDA DA FRENTE
+    glBegin(GL_QUADS);
+        //face frente
+        glColor3f(0.7, 0.7, 0.7);
+        glVertex3f(-20.0,6.0,10.0);
+        glVertex3f(-20.0,-10.0,10.0);
+        glVertex3f(-16.0,-10.0,10.0);
+        glVertex3f(-16.0,6.0,10.0);
+        //espessura
+        glVertex3f(-20.0,6.0,10.0 - espessuraParede);
+        glVertex3f(-20.0,-10.0,10.0 - espessuraParede);
+        glVertex3f(-16.0,-10.0,10.0 - espessuraParede);
+        glVertex3f(-16.0,6.0,10.0 - espessuraParede);
+        //face direita
+        glVertex3f(-16.0,6.0,10.0 - espessuraParede);
+        glVertex3f(-16.0,-10.0,10.0 - espessuraParede);
+        glVertex3f(-16.0,-10.0,10.0);
+        glVertex3f(-16.0,6.0,10.0);
+        //face esquerda
+        glVertex3f(-20.0,6.0,10.0 - espessuraParede);
+        glVertex3f(-20.0,-10.0,10.0 - espessuraParede);
+        glVertex3f(-20.0,-10.0,10.0);
+        glVertex3f(-20.0,6.0,10.0);
+        //face baixo
+        glVertex3f(-20.0,-10.0,10.0 - espessuraParede);
+        glVertex3f(-20.0,-10.0,10.0);
+        glVertex3f(-16.0,-10.0,10.0);
+        glVertex3f(-16.0,-10.0,10.0 - espessuraParede);
+        //
+        //FACE DIREITA - FRENTE
+        //frente
+        glColor3f(0.7,0.7,0.7);
+        glVertex3f(-8.0,6.0,10.0);
+        glVertex3f(-8.0,-10.0,10.0);
+        glVertex3f(comprimentoMaximo,-10.0,10.0);
+        glVertex3f(comprimentoMaximo,6.0,10.0);
+        //expessura
+        glVertex3f(-8.0,6.0,10.0 - espessuraParede);
+        glVertex3f(-8.0,-10.0,10.0 - espessuraParede);
+        glVertex3f(comprimentoMaximo,-10.0,10.0 - espessuraParede);
+        glVertex3f(comprimentoMaximo,6.0,10.0 - espessuraParede);
+        //direita
+        glVertex3f(comprimentoMaximo,6.0,10.0 - espessuraParede);
+        glVertex3f(comprimentoMaximo,-10.0,10.0 - espessuraParede);
+        glVertex3f(comprimentoMaximo,-10.0,10.0);
+        glVertex3f(comprimentoMaximo,6.0,10.0);
+        //esquerda
+        glVertex3f(-8.0,6.0,10.0 - espessuraParede);
+        glVertex3f(-8.0,-10.0,10.0 - espessuraParede);
+        glVertex3f(-8.0,-10.0,10.0);
+        glVertex3f(-8.0,6.0,10.0);
+        //face baixo
+        glVertex3f(-8.0,-10.0,10.0 - espessuraParede);
+        glVertex3f(-8.0,-10.0,10.0);
+        glVertex3f(comprimentoMaximo,-10.0,10.0);
+        glVertex3f(comprimentoMaximo,-10.0,10.0 - espessuraParede);
+        //FACE CIMA - FRENTE
+        //Face cima - frente
+        glColor3f(0.7,0.7,0.7);
+        glVertex3f(-20.0,10.0,10.0);
+        glVertex3f(-20.0,6.0,10.0);
+        glVertex3f(comprimentoMaximo,6.0,10.0);
+        glVertex3f(comprimentoMaximo,10.0,10.0);
+        //expessura
+        glVertex3f(-20.0,10.0,10.0 - espessuraParede);
+        glVertex3f(-20.0,6.0,10.0 - espessuraParede);
+        glVertex3f(comprimentoMaximo,6.0,10.0 - espessuraParede);
+        glVertex3f(comprimentoMaximo,10.0,10.0 - espessuraParede);
+        //direita
+        glVertex3f(comprimentoMaximo,10.0,10.0 - espessuraParede);
+        glVertex3f(comprimentoMaximo,6.0,10.0 - espessuraParede);
+        glVertex3f(comprimentoMaximo,6.0,10.0);
+        glVertex3f(comprimentoMaximo,10.0,10.0);
+        //esquerda
+        glVertex3f(-20.0,10.0,10.0 - espessuraParede);
+        glVertex3f(-20.0,6.0,10.0 - espessuraParede);
+        glVertex3f(-20.0,6.0,10.0);
+        glVertex3f(-20.0,10.0,10.0);
+        //cima
+        glVertex3f(-20.0,10.0,10.0 - espessuraParede);
+        glVertex3f(-20.0,10.0,10.0);
+        glVertex3f(comprimentoMaximo,10.0,10.0);
+        glVertex3f(comprimentoMaximo,10.0,10.0 - espessuraParede);
+        //baixo
+        glVertex3f(-20.0,6.0,10.0 - espessuraParede);
+        glVertex3f(-20.0,6.0,10.0);
+        glVertex3f(comprimentoMaximo,6.0,10.0);
+        glVertex3f(comprimentoMaximo,6.0,10.0 - espessuraParede);
+        //  
+        //
+        //FACE DE TRÁS
+        //FACE DA FRENTE - TRÁS
+        glColor3f(0.7,0.7,0.7);
+        glVertex3f(-20.0,10.0,larguraMaxima);
+        glVertex3f(-20.0,-10.0,larguraMaxima);
+        glVertex3f(comprimentoMaximo,-10.0,larguraMaxima);
+        glVertex3f(comprimentoMaximo,10.0,larguraMaxima);
+        //
+        //espessura
+        glVertex3f(-20.0,10.0,larguraMaxima - espessuraParede);
+        glVertex3f(-20.0,-10.0,larguraMaxima - espessuraParede);
+        glVertex3f(comprimentoMaximo,-10.0,larguraMaxima - espessuraParede);
+        glVertex3f(comprimentoMaximo,10.0,larguraMaxima - espessuraParede);
+        //face direita
+        glVertex3f(comprimentoMaximo,10.0,larguraMaxima - espessuraParede);
+        glVertex3f(comprimentoMaximo,-10.0,larguraMaxima - espessuraParede);
+        glVertex3f(comprimentoMaximo,-10.0,larguraMaxima);
+        glVertex3f(comprimentoMaximo,10.0,larguraMaxima);
+        //face esquerda
+        glVertex3f(-20.0,10.0,larguraMaxima- espessuraParede);
+        glVertex3f(-20.0,-10.0,larguraMaxima - espessuraParede);
+        glVertex3f(-20.0,-10.0,larguraMaxima);
+        glVertex3f(-20.0,10.0,larguraMaxima);
+        //face cima
+        glVertex3f(-20.0,10.0,larguraMaxima - espessuraParede);
+        glVertex3f(-20.0,10.0,larguraMaxima);
+        glVertex3f(comprimentoMaximo,10.0,larguraMaxima);
+        glVertex3f(comprimentoMaximo,10.0,larguraMaxima - espessuraParede);
+        //face baixo
+        glVertex3f(-20.0,-10.0,larguraMaxima - espessuraParede);
+        glVertex3f(-20.0,-10.0,larguraMaxima);
+        glVertex3f(comprimentoMaximo,-10.0,larguraMaxima);
+        glVertex3f(comprimentoMaximo,-10.0,larguraMaxima - espessuraParede);
+        //
+        // FACE DIREITA
+        //frente
+        glColor3f(0.7,0.7,0.7);
+        glVertex3f(comprimentoMaximo,10.0,10.0);
+        glVertex3f(comprimentoMaximo,-10.0,10.0);
+        glVertex3f(comprimentoMaximo,-10.0,larguraMaxima);
+        glVertex3f(comprimentoMaximo,10.0,larguraMaxima);
+        //espessura
+        glVertex3f(comprimentoMaximo - espessuraParede,10.0,10.0);
+        glVertex3f(comprimentoMaximo - espessuraParede,-10.0,10.0);
+        glVertex3f(comprimentoMaximo - espessuraParede,-10.0,larguraMaxima);
+        glVertex3f(comprimentoMaximo - espessuraParede,10.0,larguraMaxima);
+        // FACE ESQUERDA
+        //frente
+        glColor3f(0.7,0.7,0.7);
+        glVertex3f(-20.0,10.0,10.0);
+        glVertex3f(-20.0,-10.0,10.0);
+        glVertex3f(-20.0,-10.0,larguraMaxima);
+        glVertex3f(-20.0,10.0,larguraMaxima);
+        //espessura
+        glVertex3f(-20.0 + espessuraParede,10.0,10.0);
+        glVertex3f(-20.0 + espessuraParede,-10.0,10.0);
+        glVertex3f(-20.0 + espessuraParede,-10.0,larguraMaxima);
+        glVertex3f(-20.0 + espessuraParede,10.0,larguraMaxima);
+        //FACE DE CIMA
+        //frente
+        glColor3f(0.0,1.0,0.0);
+        glVertex3f(-20.0,10.0,larguraMaxima);
+        glVertex3f(-20.0,10.0,10.0);
+        glVertex3f(comprimentoMaximo,10.0,10.0);
+        glVertex3f(comprimentoMaximo,10.0,larguraMaxima);
+        //espessura
+        glVertex3f(-20.0,10.0 - espessuraParede,larguraMaxima);
+        glVertex3f(-20.0,10.0 - espessuraParede,10.0);
+        glVertex3f(comprimentoMaximo,10.0 - espessuraParede,10.0);
+        glVertex3f(comprimentoMaximo,10.0 - espessuraParede,larguraMaxima);
+    glEnd();
+}
+
+void chao(){
+    glBegin(GL_QUADS);
+        //Face de baixo
+        glColor3f(0.0,1.0,1.0);
+        glVertex3f(-20.0,-10.0,larguraMaxima);
+        glVertex3f(-20.0,-10.0,10.0);
+        glVertex3f(comprimentoMaximo,-10.0,10.0);
+        glVertex3f(comprimentoMaximo,-10.0,larguraMaxima);
+    glEnd();
+};
+
+void fechadura(){
+        //FECHADURA
+        glBegin(GL_QUADS);
+            //Visor
+            glColor3f(0.0,1.0,1.0);
+            glVertex3f(-5.8,1.7,10.2);
+            glVertex3f(-5.8,0.5,10.2);
+            glVertex3f(-4.7,0.5,10.2);
+            glVertex3f(-4.7,1.7,10.2);
+            //frente
+            glColor3f(0,0,0);
+            glVertex3f(-6.0,2.0,10.2);
+            glVertex3f(-6.0,-1.0,10.2);
+            glVertex3f(-4.5,-1.0,10.2);
+            glVertex3f(-4.5,2.0,10.2);
+            //tras
+            glVertex3f(-6.0,2.0,10.2 - 0.2);
+            glVertex3f(-6.0,-1.0,10.2 - 0.2);
+            glVertex3f(-4.5,-1.0,10.2 - 0.2);
+            glVertex3f(-4.5,2.0,10.2 - 0.2);
+            //direita
+            glVertex3f(-4.5,2.0,10.2 - 0.2);
+            glVertex3f(-4.5,-1.0,10.2 - 0.2);
+            glVertex3f(-4.5,-1.0,10.2);
+            glVertex3f(-4.5,2.0,10.2);
+            //esquerda
+            glVertex3f(-6.0,2.0,10.2 - 0.2);
+            glVertex3f(-6.0,-1.0,10.2 - 0.2);
+            glVertex3f(-6.0,-1.0,10.2);
+            glVertex3f(-6.0,2.0,10.2);
+        glEnd();
+        //
+}
+
+void porta(){
+    glBegin(GL_QUADS);
+        glColor3f(0.6f, 0.3f, 0.1f);
+        //face frente
+        glVertex3f(-16.0,6.0,10.0);
+        glVertex3f(-16.0,-10.0,10.0);
+        glVertex3f(-8.0,-10.0,10.0);
+        glVertex3f(-8.0,6.0,10.0);
+        //espessura
+        glVertex3f(-16.0,6.0,10.0 - 1.0);
+        glVertex3f(-16.0,-10.0,10.0 - 1.0);
+        glVertex3f(-8.0,-10.0,10.0 - 1.0);
+        glVertex3f(-8.0,6.0,10.0 - 1.0);
+        //face direita
+        glVertex3f(-16.0,6.0,10.0 - 1.0);
+        glVertex3f(-16.0,-10.0,10.0 - 1.0);
+        glVertex3f(-16.0,-10.0,10.0);
+        glVertex3f(-16.0,6.0,10.0);
+        //face esquerda
+        glVertex3f(-8.0,6.0,10.0 - 1.0);
+        glVertex3f(-8.0,-10.0,10.0 - 1.0);
+        glVertex3f(-8.0,-10.0,10.0);
+        glVertex3f(-8.0,6.0,10.0);
+        //face baixo
+        glVertex3f(-8.0,-10.0,10.0 - 1.0);
+        glVertex3f(-8.0,-10.0,10.0);
+        glVertex3f(-16.0,-10.0,10.0);
+        glVertex3f(-16.0,-10.0,10.0 - 1.0);
+        //
+    glEnd();
 
 }
