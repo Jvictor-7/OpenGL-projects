@@ -25,6 +25,8 @@ void init(); // Função de inicialização
 void renderScene(); // Função de renderização da cena
 void keyboard(unsigned char key, int x, int y); // Função de entrada do teclado
 
+void paralelepipedo(float comprimento, float altura, float profundidade);
+
 //PARTES LAB
 void parede();
 void chao();
@@ -69,12 +71,14 @@ void renderScene() { // Função de renderização da cena
     // Desenhe a renderScene aqui
     // Desenhe um cubo colorido
     glPushMatrix(); // Salva a matriz atual na pilha de matrizes.
-    glTranslatef(0.0f, 0.0f, -5.0f); // Transla a cena para a posição (-5, 0, 0).
+    paralelepipedo(4.0, 16.0, 1.0);
+    glPopMatrix();
+    
+    glPushMatrix(); // Salva a matriz atual na pilha de matrizes.
+    glTranslatef(13.0f, 16.0f/2, 0.0f);
+    paralelepipedo(30.0, 4.0, 1.0);
+    glPopMatrix();
 
-    chao();
-    parede();
-    fechadura();
-    porta();
 
     glBegin(GL_QUADS); //  Inicia a definição de um conjunto de quadriláteros.
 
@@ -394,4 +398,50 @@ void porta(){
         //
     glEnd();
 
+}
+
+void paralelepipedo(float comprimento, float altura, float profundidade) {
+    float c = comprimento/2.0;
+    float a = altura/2.0;
+    float p = profundidade/2.0;
+
+    glBegin(GL_QUADS);
+
+    // Face frontal
+    glVertex3f(-c, -a, p);
+    glVertex3f(c, -a, p);
+    glVertex3f(c, a, p);
+    glVertex3f(-c, a, p);
+
+    // Face traseira
+    glVertex3f(-c, -a, -p);
+    glVertex3f(-c, a, -p);
+    glVertex3f(c, a, -p);
+    glVertex3f(c, -a, -p);
+
+    // Face lateral esquerda
+    glVertex3f(-c, -a, p);
+    glVertex3f(-c, a, p);
+    glVertex3f(-c, a, -p);
+    glVertex3f(-c, -a, -p);
+
+    // Face lateral direita
+    glVertex3f(c, -a, p);
+    glVertex3f(c, -a, -p);
+    glVertex3f(c, a, -p);
+    glVertex3f(c, a, p);
+
+    // Face superior
+    glVertex3f(-c, a, p);
+    glVertex3f(c, a, p);
+    glVertex3f(c, a, -p);
+    glVertex3f(-c, a, -p);
+
+    // Face inferior
+    glVertex3f(-c, -a, p);
+    glVertex3f(-c, -a, -p);
+    glVertex3f(c, -a, -p);
+    glVertex3f(c, -a, p);
+
+    glEnd();
 }
