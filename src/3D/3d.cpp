@@ -19,7 +19,7 @@ float cameraRotateX = 0.0f; // rotação horizontal da câmera
 float cameraRotateY = 0.0f; // rotação vertical da câmera
 
 float comprimentoMaximo = 60.0; //Comprimeneto do lab
-float larguraMaxima = -40.0; // largura do lab
+float larguraMaxima = -80.0; // largura do lab
 //PAREDE
 float espessuraParede = 1.5f;
 
@@ -36,6 +36,11 @@ void fechadura();
 void porta();
 void janelaEsquerda();
 void janelaDireita();
+void mesa();
+void cadeira();
+
+//PARALELEPIPEDO
+void paralelepipedo(float comprimento, float altura, float profundidade);
 
 int main(int argc, char** argv) {
     glutInit(&argc, argv); // Inicializa o GLUT
@@ -79,13 +84,197 @@ void renderScene() { // Função de renderização da cena
     porta();
     janelaEsquerda();
     janelaDireita();
+    // CADEIRAS A DIREITA
+    //cadeira 1
+    cadeira();
+    //cadeira 2
+    glPushMatrix();
+    glTranslatef(0.0f, 0.0f, 10.0f);
+    cadeira();
+    glPopMatrix();
+    //cadeira 3
+    glPushMatrix();
+    glTranslatef(0.0f, 0.0f, 19.0f);
+    cadeira();
+    glPopMatrix();
+    //cadeira 4
+    glPushMatrix();
+    glTranslatef(15.0f,0.0f,-30.0f);
+    glRotatef(180.0f, 0.0f, 1.0f, 0.0f);
+    cadeira();
+    glPopMatrix();
+    //cadeira 5
+    glPushMatrix();
+    glTranslatef(15.0f,0.0f,-20.0f);
+    glRotatef(180.0f, 0.0f, 1.0f, 0.0f);
+    cadeira();
+    glPopMatrix();
+    //cadeira 6
+    glPushMatrix();
+    glTranslatef(15.0f,0.0f,-10.0f);
+    glRotatef(180.0f, 0.0f, 1.0f, 0.0f);
+    cadeira();
+    glPopMatrix();
+    //cadeira 7
+    glPushMatrix();
+    glTranslatef(26.0f,0.0f,0.0f);
+    cadeira();
+    glPopMatrix();
+    //cadeira 8
+    glPushMatrix();
+    glTranslatef(26.0f, 0.0f, 10.0f);
+    cadeira();
+    glPopMatrix();
+    //cadeira 9
+    glPushMatrix();
+    glTranslatef(26.0f, 0.0f, 19.0f);
+    cadeira();
+    glPopMatrix();
+    //cadeira 10
+    glPushMatrix();
+    glTranslatef(15.0f+26.0f,0.0f,-30.0f);
+    glRotatef(180.0f, 0.0f, 1.0f, 0.0f);
+    cadeira();
+    glPopMatrix();
+    //cadeira 11
+    glPushMatrix();
+    glTranslatef(15.0f+26.0f,0.0f,-20.0f);
+    glRotatef(180.0f, 0.0f, 1.0f, 0.0f);
+    cadeira();
+    glPopMatrix();
+    //cadeira 12
+    glPushMatrix();
+    glTranslatef(15.0f +26.0f,0.0f,-10.0f);
+    glRotatef(180.0f, 0.0f, 1.0f, 0.0f);
+    cadeira();
+    glPopMatrix();
+    //cadeira 13
+    glPushMatrix();
+    glTranslatef(48.0f, 0.0f, 0.0f);
+    cadeira();
+    glPopMatrix();
+    //cadeira 14
+    glPushMatrix();
+    glTranslatef(48.0f, 0.0f, 10.0f);
+    cadeira();
+    glPopMatrix();
+    //cadeira 15
+    glPushMatrix();
+    glTranslatef(48.0f, 0.0f, 19.0f);
+    cadeira();
+    glPopMatrix();
+    //CADEIRAS A ESQUERDA
+    //cadeira 1
+    glPushMatrix();
+    glTranslatef(0.0f,0.0f,-60.0f);
+    cadeira();
+    glPopMatrix();
+    //cadeira 2
+    glPushMatrix();
+    glTranslatef(0.0f, 0.0f, 10.0f-60.0f);
+    cadeira();
+    glPopMatrix();
+    //cadeira 3
+    glPushMatrix();
+    glTranslatef(0.0f, 0.0f, 19.0f-60.0f);
+    cadeira();
+    glPopMatrix();
+    //cadeira 4
+    glPushMatrix();
+    glTranslatef(15.0f,0.0f,-30.0f-60.0f);
+    glRotatef(180.0f, 0.0f, 1.0f, 0.0f);
+    cadeira();
+    glPopMatrix();
+    //cadeira 5
+    glPushMatrix();
+    glTranslatef(15.0f,0.0f,-20.0f-60.0f);
+    glRotatef(180.0f, 0.0f, 1.0f, 0.0f);
+    cadeira();
+    glPopMatrix();
+    //cadeira 6
+    glPushMatrix();
+    glTranslatef(15.0f,0.0f,-10.0f-60.0f);
+    glRotatef(180.0f, 0.0f, 1.0f, 0.0f);
+    cadeira();
+    glPopMatrix();
+    //cadeira 7
+    glPushMatrix();
+    glTranslatef(26.0f,0.0f,0.0f-60.0f);
+    cadeira();
+    glPopMatrix();
+    //cadeira 8
+    glPushMatrix();
+    glTranslatef(26.0f, 0.0f, 10.0f-60.0f);
+    cadeira();
+    glPopMatrix();
+    //cadeira 9
+    glPushMatrix();
+    glTranslatef(26.0f, 0.0f, 19.0f-60.0f);
+    cadeira();
+    glPopMatrix();
+    //cadeira 10
+    glPushMatrix();
+    glTranslatef(15.0f+26.0f,0.0f,-30.0f-60.0f);
+    glRotatef(180.0f, 0.0f, 1.0f, 0.0f);
+    cadeira();
+    glPopMatrix();
+    //cadeira 11
+    glPushMatrix();
+    glTranslatef(15.0f+26.0f,0.0f,-20.0f-60.0f);
+    glRotatef(180.0f, 0.0f, 1.0f, 0.0f);
+    cadeira();
+    glPopMatrix();
+    //cadeira 12
+    glPushMatrix();
+    glTranslatef(15.0f +26.0f,0.0f,-10.0f-60.0f);
+    glRotatef(180.0f, 0.0f, 1.0f, 0.0f);
+    cadeira();
+    glPopMatrix();
+    //cadeira 13
+    glPushMatrix();
+    glTranslatef(48.0f, 0.0f, 0.0f-60.0f);
+    cadeira();
+    glPopMatrix();
+    //cadeira 14
+    glPushMatrix();
+    glTranslatef(48.0f, 0.0f, 10.0f-60.0f);
+    cadeira();
+    glPopMatrix();
+    //cadeira 15
+    glPushMatrix();
+    glTranslatef(48.0f, 0.0f, 19.0f-60.0f);
+    cadeira();
+    glPopMatrix();
+    //mesa1
+    mesa();
+    //mesa2
+    glPushMatrix();
+    glTranslatef(25.0f,0.0f,0.0f);
+    mesa();
+    glPopMatrix();
+    //mesa3
+    glPushMatrix();
+    glTranslatef(0.0f,0.0f,-60.0f);
+    mesa();
+    glPopMatrix();
+    //mesa4
+    glPushMatrix();
+    glTranslatef(25.0f,0.0f,-60.0f);
+    mesa();
+    glPopMatrix();
+    //mesa5
+    glPushMatrix();
+    glColor3f(0.84f, 0.6f, 0.35f);
+    glTranslatef(54.0f,-5.0f,-36.0);
+    paralelepipedo(10.0f,1.0f,91.0f);
+    glPopMatrix();
 
     glutSwapBuffers(); // Troca os buffers de vídeo utilizados para renderizar a cena
 }
 
 void keyboard(unsigned char key, int x, int y) {
 
-    float cameraSpeed = 0.3f; // Velocidade de movimento da câmera
+    float cameraSpeed = 1.0f; // Velocidade de movimento da câmera
     float cameraRotationSpeed = 5.0f; // Velocidade de rotação da câmera
 
     switch (key) {
@@ -364,7 +553,7 @@ void parede(){
         glVertex3f(-20.0 + espessuraParede,10.0,larguraMaxima);
         //FACE DE CIMA
         //frente
-        glColor3f(0.0,1.0,0.0);
+        glColor3f(0.9,0.9,0.9);
         glVertex3f(-20.0,10.0,larguraMaxima);
         glVertex3f(-20.0,10.0,10.0);
         glVertex3f(comprimentoMaximo,10.0,10.0);
@@ -382,7 +571,7 @@ void chao(){
     glPushMatrix();
     glBegin(GL_QUADS);
         //Face de baixo
-        glColor3f(0.0,1.0,1.0);
+        glColor3f(0.9,0.9,0.9);
         glVertex3f(-20.0,-10.0,larguraMaxima);
         glVertex3f(-20.0,-10.0,10.0);
         glVertex3f(comprimentoMaximo,-10.0,10.0);
@@ -544,5 +733,85 @@ void janelaDireita(){
         glVertex3f(50.0-0.5,-5.0+0.5,larguraMaxima-0.01 - espessuraParede);
         glVertex3f(50.0-0.5,5.0-0.5,larguraMaxima-0.01 - espessuraParede);
     glEnd();
+    glPopMatrix();
+}
+
+void paralelepipedo(float comprimento, float altura, float profundidade) {
+    float c = comprimento/2.0;
+    float a = altura/2.0;
+    float p = profundidade/2.0;
+
+    glBegin(GL_QUADS);
+
+    // Face frontal
+    glVertex3f(-c, -a, p);
+    glVertex3f(c, -a, p);
+    glVertex3f(c, a, p);
+    glVertex3f(-c, a, p);
+
+    // Face traseira
+    glVertex3f(-c, -a, -p);
+    glVertex3f(-c, a, -p);
+    glVertex3f(c, a, -p);
+    glVertex3f(c, -a, -p);
+
+    // Face lateral esquerda
+    glVertex3f(-c, -a, p);
+    glVertex3f(-c, a, p);
+    glVertex3f(-c, a, -p);
+    glVertex3f(-c, -a, -p);
+
+    // Face lateral direita
+    glVertex3f(c, -a, p);
+    glVertex3f(c, -a, -p);
+    glVertex3f(c, a, -p);
+    glVertex3f(c, a, p);
+
+    // Face superior
+    glVertex3f(-c, a, p);
+    glVertex3f(c, a, p);
+    glVertex3f(c, a, -p);
+    glVertex3f(-c, a, -p);
+
+    // Face inferior
+    glVertex3f(-c, -a, p);
+    glVertex3f(-c, -a, -p);
+    glVertex3f(c, -a, -p);
+    glVertex3f(c, -a, p);
+
+    glEnd();
+}
+
+void mesa(){
+    //mesas
+    glPushMatrix();
+    glColor3f(0.84f, 0.6f, 0.35f);
+    glTranslatef(5.0f,-5.0f,-6.0);
+    paralelepipedo(5.0f,1.0f,30.0f);
+    glPopMatrix();
+
+    glPushMatrix();
+    glColor3f(0.84f, 0.6f, 0.35f);
+    glTranslatef(8.0f,-5.0f,-6.0);
+    paralelepipedo(1.0f,10.0f,30.0f);
+    glPopMatrix();
+
+    glPushMatrix();
+    glColor3f(0.84f, 0.6f, 0.35f);
+    glTranslatef(11.0f,-5.0f,-6.0);
+    paralelepipedo(5.0f,1.0f,30.0f);
+    glPopMatrix();
+}
+
+void cadeira(){
+    glPushMatrix();
+    glColor3f(0.2f, 0.2f, 0.2f);
+    glTranslatef(2.0f,-8.0f,-14.0);
+    paralelepipedo(5.0f,5.0f,5.0f);
+    glPopMatrix();
+    
+    glPushMatrix();
+    glTranslatef(0.0f,-4.0f,-14.0);
+    paralelepipedo(1.0f,4.0f,5.0f);
     glPopMatrix();
 }
