@@ -38,6 +38,7 @@ void janelaEsquerda();
 void janelaDireita();
 void mesa();
 void cadeira();
+void armario();
 
 //PARALELEPIPEDO
 void paralelepipedo(float comprimento, float altura, float profundidade);
@@ -268,6 +269,8 @@ void renderScene() { // Função de renderização da cena
     glTranslatef(54.0f,-5.0f,-36.0);
     paralelepipedo(10.0f,1.0f,91.0f);
     glPopMatrix();
+
+    armario();
 
     glutSwapBuffers(); // Troca os buffers de vídeo utilizados para renderizar a cena
 }
@@ -813,5 +816,52 @@ void cadeira(){
     glPushMatrix();
     glTranslatef(0.0f,-4.0f,-14.0);
     paralelepipedo(1.0f,4.0f,5.0f);
+    glPopMatrix();
+}
+
+void armario(){
+    // FACE ESQUERDA
+    glPushMatrix();
+    glTranslatef(-0.5f,0.0f,-30.0f);
+    glBegin(GL_QUADS);
+    glColor3f(0.8, 0.8, 0.8);
+    //face da TRAS
+    glVertex3f(-18.0,10.0,10.0);
+    glVertex3f(-18.0,-10.0,10.0);
+    glVertex3f(-18.0,-10.0,-20.0);
+    glVertex3f(-18.0,10.0,-20.0);
+    glEnd();
+    glBegin(GL_QUADS);
+    //face de FRENTE
+    glVertex3f(-18.0 + 4.0,2.0,10.0);
+    glVertex3f(-18.0 + 4.0,-2.0,10.0);
+    glVertex3f(-18.0 + 4.0,-2.0,-0.0);
+    glVertex3f(-18.0 + 4.0,2.0,-0.0);
+    //face de FRENTE
+    glVertex3f(-18.0 + 4.0,10.0,-12.0);
+    glVertex3f(-18.0 + 4.0,-10.0,-12.0);
+    glVertex3f(-18.0 + 4.0,-10.0,0.0);
+    glVertex3f(-18.0 + 4.0,10.0,-0.0);
+    //face de FRENTE BAIXO
+    glVertex3f(-18.0 + 4.0,-8.0,-20.0);
+    glVertex3f(-18.0 + 4.0,-10.0,-20.0);
+    glVertex3f(-18.0 + 4.0,-10.0,10.0);
+    glVertex3f(-18.0 + 4.0,-8.0,10.0);
+    //face de FRENTE CIMA
+    glVertex3f(-18.0 + 4.0,7.0,-20.0);
+    glVertex3f(-18.0 + 4.0,10.0,-20.0);
+    glVertex3f(-18.0 + 4.0,10.0,10.0);
+    glVertex3f(-18.0 + 4.0,7.0,10.0);
+    // Face lateral esquerda
+    glVertex3f(-18.0, 10.0, 10.0);
+    glVertex3f(-18.0, -10.0, 10.0);
+    glVertex3f(-18.0 + 4.0, -10.0, 10.0);
+    glVertex3f(-18.0 + 4.0, 10.0, 10.0);
+    // Face lateral direita
+    glVertex3f(-18.0, 10.0, -20.0);
+    glVertex3f(-18.0, -10.0, -20.0);
+    glVertex3f(-18.0 + 4.0, -10.0, -20.0);
+    glVertex3f(-18.0 + 4.0, 10.0, -20.0);
+    glEnd();
     glPopMatrix();
 }
