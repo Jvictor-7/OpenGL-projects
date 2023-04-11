@@ -39,6 +39,10 @@ void janelaDireita();
 void mesa();
 void cadeira();
 void armario();
+void portaArmario();
+void frigobar();
+void portaFrigobar();
+void ventilador();
 
 //PARALELEPIPEDO
 void paralelepipedo(float comprimento, float altura, float profundidade);
@@ -269,8 +273,86 @@ void renderScene() { // Função de renderização da cena
     glTranslatef(54.0f,-5.0f,-36.0);
     paralelepipedo(10.0f,1.0f,91.0f);
     glPopMatrix();
-
+    //mesa6
+    glPushMatrix();
+    glColor3f(0.84f, 0.6f, 0.36f);
+    glTranslatef(-15.0f,-5.0f, -62.0);
+    paralelepipedo(10.0f,1.0f,36.0f);
+    glPopMatrix();
+    //FRIGOBAR - parte1
+    glPushMatrix();
+    glTranslatef(-15.0f, -2.0f, -12.0f);
+    frigobar();
+    portaFrigobar();
+    glPopMatrix();
+    //FRIGOBAR - parte2
+    glPushMatrix();
+    glTranslatef(-15.0f, -5.0f-2.0f, -12.0f);
+    frigobar();
+    portaFrigobar();
+    glPopMatrix();
+    //armario - parte1
+    glPushMatrix();
+    glTranslatef(-15.0f, -2.0f, -30.0f);
     armario();
+    portaArmario();
+    glPopMatrix();
+    //armario - parte2
+    glPushMatrix();
+    glTranslatef(-15.0f, -5.0f-2.0f, -30.0f);
+    armario();
+    glPopMatrix();
+    //armario - parte3
+    glPushMatrix();
+    glTranslatef(-15.0f, +5.0f-2.0f, -30.0f);
+    armario();
+    glPopMatrix();
+    //armario - parte4
+    glPushMatrix();
+    glTranslatef(-15.0f, -2.0f, -35.0f);
+    armario();
+    portaArmario();
+    glPopMatrix();
+    //armario - parte5
+    glPushMatrix();
+    glTranslatef(-15.0f, -5.0f-2.0f, -35.0f);
+    armario();
+    portaArmario();
+    glPopMatrix();
+    //armario - parte6
+    glPushMatrix();
+    glTranslatef(-15.0f, +5.0f-2.0f, -35.0f);
+    armario();
+    portaArmario();
+    glPopMatrix();
+    //armario - parte7
+    glPushMatrix();
+    glTranslatef(-15.0f, -2.0f, -40.0f);
+    armario();
+    portaArmario();
+    glPopMatrix();
+    //armario - parte8
+    glPushMatrix();
+    glTranslatef(-15.0f, -5.0f-2.0f, -40.0f);
+    armario();
+    glPopMatrix();
+    //armario - parte9
+    glPushMatrix();
+    glTranslatef(-15.0f, +5.0f-2.0f, -40.0f);
+    armario();
+    glPopMatrix();
+    //ventilador 1
+    glPushMatrix();
+    glTranslatef(0.0f,6.0f,-40.0f);
+    ventilador();
+    glPopMatrix();
+    //ventilador 2
+    glPushMatrix();
+    glTranslatef(40.0f,6.0f,-40.0f);
+    ventilador();
+    glPopMatrix();
+
+
 
     glutSwapBuffers(); // Troca os buffers de vídeo utilizados para renderizar a cena
 }
@@ -822,46 +904,146 @@ void cadeira(){
 void armario(){
     // FACE ESQUERDA
     glPushMatrix();
-    glTranslatef(-0.5f,0.0f,-30.0f);
+    glScalef(5.0,5.0,5.0);
+    glRotatef(-90.0f,0.0f,1.0f,0.0f);
+    // Desenha a face frontal do cubo
+
+    // Desenha a face superior do cubo
     glBegin(GL_QUADS);
-    glColor3f(0.8, 0.8, 0.8);
-    //face da TRAS
-    glVertex3f(-18.0,10.0,10.0);
-    glVertex3f(-18.0,-10.0,10.0);
-    glVertex3f(-18.0,-10.0,-20.0);
-    glVertex3f(-18.0,10.0,-20.0);
+    glColor3f(0.8,0.8,0.8);
+    glVertex3f(-0.5, 0.5, -0.5); // Vértice 1
+    glVertex3f(0.5, 0.5, -0.5); // Vértice 2
+    glVertex3f(0.5, 0.5, 0.5); // Vértice 3
+    glVertex3f(-0.5, 0.5,0.5); // Vértice 4
     glEnd();
+
+    // Desenha a face traseira do cubo
     glBegin(GL_QUADS);
-    //face de FRENTE
-    glVertex3f(-18.0 + 4.0,2.0,10.0);
-    glVertex3f(-18.0 + 4.0,-2.0,10.0);
-    glVertex3f(-18.0 + 4.0,-2.0,-0.0);
-    glVertex3f(-18.0 + 4.0,2.0,-0.0);
-    //face de FRENTE
-    glVertex3f(-18.0 + 4.0,10.0,-12.0);
-    glVertex3f(-18.0 + 4.0,-10.0,-12.0);
-    glVertex3f(-18.0 + 4.0,-10.0,0.0);
-    glVertex3f(-18.0 + 4.0,10.0,-0.0);
-    //face de FRENTE BAIXO
-    glVertex3f(-18.0 + 4.0,-8.0,-20.0);
-    glVertex3f(-18.0 + 4.0,-10.0,-20.0);
-    glVertex3f(-18.0 + 4.0,-10.0,10.0);
-    glVertex3f(-18.0 + 4.0,-8.0,10.0);
-    //face de FRENTE CIMA
-    glVertex3f(-18.0 + 4.0,7.0,-20.0);
-    glVertex3f(-18.0 + 4.0,10.0,-20.0);
-    glVertex3f(-18.0 + 4.0,10.0,10.0);
-    glVertex3f(-18.0 + 4.0,7.0,10.0);
-    // Face lateral esquerda
-    glVertex3f(-18.0, 10.0, 10.0);
-    glVertex3f(-18.0, -10.0, 10.0);
-    glVertex3f(-18.0 + 4.0, -10.0, 10.0);
-    glVertex3f(-18.0 + 4.0, 10.0, 10.0);
-    // Face lateral direita
-    glVertex3f(-18.0, 10.0, -20.0);
-    glVertex3f(-18.0, -10.0, -20.0);
-    glVertex3f(-18.0 + 4.0, -10.0, -20.0);
-    glVertex3f(-18.0 + 4.0, 10.0, -20.0);
+    glColor3f(0.6,0.6,0.6);
+    glVertex3f(-0.5, -0.5, 0.5); // Vértice 1
+    glVertex3f(0.5, -0.5, 0.5); // Vértice 2
+    glVertex3f(0.5, 0.5, 0.5); // Vértice 3
+    glVertex3f(-0.5, 0.5, 0.5); // Vértice 4
     glEnd();
+
+    // Desenha a face esquerda do cubo
+    glBegin(GL_QUADS);
+    glColor3f(0.8,0.8,0.8);
+    glVertex3f(-0.5, -0.5, -0.5); // Vértice 1
+    glVertex3f(-0.5, -0.5, 0.5); // Vértice 2
+    glVertex3f(-0.5, 0.5, 0.5); // Vértice 3
+    glVertex3f(-0.5, 0.5, -0.5); // Vértice 4
+    glEnd();
+
+    // Desenha a face direita do cubo
+    glBegin(GL_QUADS);
+    glColor3f(0.8,0.8,0.8);
+    glVertex3f(0.5, -0.5, -0.5); // Vértice 1
+    glVertex3f(0.5, -0.5, 0.5); // Vértice 2
+    glVertex3f(0.5, 0.5, 0.5); // Vértice 3
+    glVertex3f(0.5, 0.5, -0.5); // Vértice 4
+    glEnd();
+
+    // Desenha a face inferior do cubo
+    glBegin(GL_QUADS);
+    glColor3f(0.8,0.8,0.8);
+    glVertex3f(-0.5, -0.5, -0.5); // Vértice 1
+    glVertex3f(0.5, -0.5, -0.5); // Vértice 2
+    glVertex3f(0.5, -0.5, 0.5); // Vértice 3
+    glVertex3f(-0.5, -0.5, 0.5); // Vértice 4
+    glEnd();
+
+    glPopMatrix();
+}
+
+void portaArmario(){
+    glPushMatrix();
+    glScalef(5.0,5.0,5.0);
+    glRotatef(-90.0f,0.0f,1.0f,0.0f);
+    glBegin(GL_QUADS);
+    glColor3f(0.95,0.95,0.95);
+    glVertex3f(-0.5, -0.5, -0.5); // Vértice 1
+    glVertex3f(0.5, -0.5, -0.5); // Vértice 2
+    glVertex3f(0.5, 0.5, -0.5); // Vértice 3
+    glVertex3f(-0.5, 0.5, -0.5); // Vértice 4
+    glEnd();
+    glPopMatrix();
+}
+void frigobar(){
+    // FACE ESQUERDA
+    glPushMatrix();
+    glScalef(5.0,5.0,5.0);
+    glRotatef(-90.0f,0.0f,1.0f,0.0f);
+    // Desenha a face frontal do cubo
+
+    // Desenha a face superior do cubo
+    glBegin(GL_QUADS);
+    glColor3f(0.5, 0.0, 0.0);
+    glVertex3f(-0.5, 0.5, -0.5); // Vértice 1
+    glVertex3f(0.5, 0.5, -0.5); // Vértice 2
+    glVertex3f(0.5, 0.5, 0.5); // Vértice 3
+    glVertex3f(-0.5, 0.5,0.5); // Vértice 4
+    glEnd();
+
+    // Desenha a face traseira do cubo
+    glBegin(GL_QUADS);
+    glColor3f(0.2, 0.0, 0.0);
+    glVertex3f(-0.5, -0.5, 0.5); // Vértice 1
+    glVertex3f(0.5, -0.5, 0.5); // Vértice 2
+    glVertex3f(0.5, 0.5, 0.5); // Vértice 3
+    glVertex3f(-0.5, 0.5, 0.5); // Vértice 4
+    glEnd();
+
+    // Desenha a face esquerda do cubo
+    glBegin(GL_QUADS);
+    glColor3f(0.5, 0.0, 0.0);
+    glVertex3f(-0.5, -0.5, -0.5); // Vértice 1
+    glVertex3f(-0.5, -0.5, 0.5); // Vértice 2
+    glVertex3f(-0.5, 0.5, 0.5); // Vértice 3
+    glVertex3f(-0.5, 0.5, -0.5); // Vértice 4
+    glEnd();
+
+    // Desenha a face direita do cubo
+    glBegin(GL_QUADS);
+    glColor3f(0.5, 0.0, 0.0);
+    glVertex3f(0.5, -0.5, -0.5); // Vértice 1
+    glVertex3f(0.5, -0.5, 0.5); // Vértice 2
+    glVertex3f(0.5, 0.5, 0.5); // Vértice 3
+    glVertex3f(0.5, 0.5, -0.5); // Vértice 4
+    glEnd();
+
+    // Desenha a face inferior do cubo
+    glBegin(GL_QUADS);
+    glColor3f(0.5, 0.0, 0.0);
+    glVertex3f(-0.5, -0.5, -0.5); // Vértice 1
+    glVertex3f(0.5, -0.5, -0.5); // Vértice 2
+    glVertex3f(0.5, -0.5, 0.5); // Vértice 3
+    glVertex3f(-0.5, -0.5, 0.5); // Vértice 4
+    glEnd();
+
+    glPopMatrix();
+}
+
+void portaFrigobar(){
+    glPushMatrix();
+    glScalef(5.0,5.0,5.0);
+    glRotatef(-90.0f,0.0f,1.0f,0.0f);
+    glBegin(GL_QUADS);
+    glColor3f(0.6,0.1,0.1);
+    glVertex3f(-0.5, -0.5, -0.5); // Vértice 1
+    glVertex3f(0.5, -0.5, -0.5); // Vértice 2
+    glVertex3f(0.5, 0.5, -0.5); // Vértice 3
+    glVertex3f(-0.5, 0.5, -0.5); // Vértice 4
+    glEnd();
+    glPopMatrix();
+}
+
+void ventilador(){
+    glPushMatrix();
+    glColor3f(0.4, 0.2, 0.0);
+    paralelepipedo(2.0f,0.5f,12.0f);
+    paralelepipedo(12.0f,0.5f,2.0f);
+    glTranslatef(0.0f,2.0f,0.0f);
+    paralelepipedo(0.2f,4.0f,0.2f);
     glPopMatrix();
 }
