@@ -28,6 +28,8 @@ float anguloVentilador = 0.0;
 float posicaoJanelaEsquerda = 0.0;
 float posicaoJanelaDireita = 0.0;
 float anguloPorta = 0.0;
+float xPorta = -12.0f;
+float zPorta = 9.0;
 
 float cameraSpeed = 0.1f; // Velocidade de movimento da câmera
 
@@ -267,10 +269,10 @@ void init(){ // Função de inicialização
     glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
     glEnable(GL_DEPTH_TEST); // HABILITA O TESTE DE PROFUNDIDADE
     glGenTextures(5, texID);
-    carregaTextura(texID[0], "texturas/floor2.jpg");
-    carregaTextura(texID[1], "texturas/parede2.png");
-    carregaTextura(texID[2], "texturas/frente_frigobar.png");
-    carregaTextura(texID[3], "texturas/livros.jpg");
+    // carregaTextura(texID[0], "texturas/floor2.jpg");
+    // carregaTextura(texID[1], "texturas/parede2.png");
+    // carregaTextura(texID[2], "texturas/frente_frigobar.png");
+    // carregaTextura(texID[3], "texturas/livros.jpg");
 
     setup_lighting();
 }
@@ -676,7 +678,12 @@ void renderScene() { // Função de renderização da cena
     paralelepipedo(12.0f,0.5f,2.0f);
     glPopMatrix();
 
-
+    //PORTA2
+    glPushMatrix();
+    glTranslatef(xPorta,-2.0f,zPorta);
+    glRotatef(anguloPorta, 0.0f, 1.0f, 0.0f);
+    paralelepipedo(8.0f, 16.0f, 2.0f);
+    glPopMatrix();
 
     glutSwapBuffers(); // Troca os buffers de vídeo utilizados para renderizar a cena
 }
@@ -1573,6 +1580,28 @@ void update(){
             posicaoJanelaDireita = 0;
             janelaAberta = FALSE;
         }
+    }
+
+    if (portaAberta) {
+        anguloPorta += 0.2f;
+        if(anguloPorta >= 90){
+            anguloPorta = 90;
+            portaAberta = TRUE;
+            xPorta -= 0.2f;
+            if(xPorta <= -15.0f){
+                xPorta = -15.0f;
+            }
+            zPorta = 6.0f;
+        }
+    } else {
+        anguloPorta -= 0.2f;
+        if(anguloPorta <= 0){
+            anguloPorta = 0;
+            portaAberta = FALSE;
+            xPorta = -12.0f;
+            zPorta = 9.0f;
+        }
+
     }
 
     glutPostRedisplay(); 
