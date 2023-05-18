@@ -22,8 +22,11 @@ bool portaAberta = FALSE;
 bool ventiladorLigado = FALSE;
 bool abajuresLigado = FALSE;
 bool lampadasLigado = FALSE;
+bool janelaAberta = FALSE;
 
 float anguloVentilador = 0.0;
+float posicaoJanelaEsquerda = 0.0;
+float posicaoJanelaDireita = 0.0;
 float anguloPorta = 0.0;
 
 float cameraSpeed = 0.1f; // Velocidade de movimento da câmera
@@ -175,6 +178,7 @@ void setup_lighting(){
     glEnable(GL_COLOR_MATERIAL); // Habilita a cor de material
     glColorMaterial(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE);
 
+
     float light_ambient[] = { 0.2f, 0.2f, 0.2f}; // Inicialmente vale 0.2f, 0.2f, 0.2f
     glLightfv(GL_LIGHT0, GL_AMBIENT, light_ambient);
 
@@ -301,8 +305,25 @@ void renderScene() { // Função de renderização da cena
     porta();
     glPopMatrix();
     // plano();
-    janelaEsquerda();
-    janelaDireita();
+    if(janelaAberta){
+        glPushMatrix();
+        glTranslatef(posicaoJanelaEsquerda,0.0f,0.0f);
+        janelaEsquerda();
+        glPopMatrix();
+        glPushMatrix();
+        glTranslatef(posicaoJanelaDireita,0.0f,0.0f);
+        janelaDireita();
+        glPopMatrix();
+    } else {
+        glPushMatrix();
+        glTranslatef(posicaoJanelaEsquerda,0.0f,0.0f);
+        janelaEsquerda();
+        glPopMatrix();
+        glPushMatrix();
+        glTranslatef(posicaoJanelaDireita,0.0f,0.0f);
+        janelaDireita();
+        glPopMatrix();
+    }
     // CADEIRAS A DIREITA
     //cadeira 1
     cadeira();
@@ -1081,41 +1102,41 @@ void janelaEsquerda(){
     glPushMatrix();
     glBegin(GL_QUADS);
         //bordas brancas - frente
-        glColor3f(1.0,1.0,1.0);
+        glColor3f(1.0,1.0,1.0f);
         glVertex3f(-10.0,5.0,larguraMaxima);
         glVertex3f(-10.0,-5.0,larguraMaxima);
         glVertex3f(10.0,-5.0,larguraMaxima);
         glVertex3f(10.0,5.0,larguraMaxima);
         //bordas brancas - espessura
         glColor3f(1.0,1.0,1.0);
-        glVertex3f(-10.0,5.0,larguraMaxima - espessuraParede);
-        glVertex3f(-10.0,-5.0,larguraMaxima - espessuraParede);
-        glVertex3f(10.0,-5.0,larguraMaxima - espessuraParede);
-        glVertex3f(10.0,5.0,larguraMaxima - espessuraParede);
+        glVertex3f(-10.0,5.0,larguraMaxima - espessuraParede - 0.2);
+        glVertex3f(-10.0,-5.0,larguraMaxima - espessuraParede - 0.2);
+        glVertex3f(10.0,-5.0,larguraMaxima - espessuraParede - 0.2);
+        glVertex3f(10.0,5.0,larguraMaxima - espessuraParede - 0.2);
         //bordas brancas - direita
         glColor3f(1.0,1.0,1.0);
-        glVertex3f(10.0,5.0,larguraMaxima - espessuraParede);
-        glVertex3f(10.0,-5.0,larguraMaxima - espessuraParede);
+        glVertex3f(10.0,5.0,larguraMaxima - espessuraParede - 0.2);
+        glVertex3f(10.0,-5.0,larguraMaxima - espessuraParede - 0.2);
         glVertex3f(10.0,-5.0,larguraMaxima);
         glVertex3f(10.0,5.0,larguraMaxima);
         //bordas brancas - esquerda
         glColor3f(1.0,1.0,1.0);
-        glVertex3f(-10.0,5.0,larguraMaxima - espessuraParede);
-        glVertex3f(-10.0,-5.0,larguraMaxima - espessuraParede);
+        glVertex3f(-10.0,5.0,larguraMaxima - espessuraParede - 0.2);
+        glVertex3f(-10.0,-5.0,larguraMaxima - espessuraParede - 0.2);
         glVertex3f(-10.0,-5.0,larguraMaxima);
         glVertex3f(-10.0,5.0,larguraMaxima);
-        //espelho
-        glColor3f(.0,1.0,1.0);
-        glVertex3f(-10.0+0.5,5.0-0.5,larguraMaxima+0.01);
-        glVertex3f(-10.0+0.5,-5.0+0.5,larguraMaxima+0.01);
-        glVertex3f(10.0-0.5,-5.0+0.5,larguraMaxima+0.01);
-        glVertex3f(10.0-0.5,5.0-0.5,larguraMaxima+0.01);
-        //espelho
-        glColor3f(.0,1.0,1.0);
-        glVertex3f(-10.0+0.5,5.0-0.5,larguraMaxima-0.01 - espessuraParede);
-        glVertex3f(-10.0+0.5,-5.0+0.5,larguraMaxima-0.01 - espessuraParede);
-        glVertex3f(10.0-0.5,-5.0+0.5,larguraMaxima-0.01 - espessuraParede);
-        glVertex3f(10.0-0.5,5.0-0.5,larguraMaxima-0.01 - espessuraParede);
+        // // //espelho
+        // glColor3f(.0,1.0,1.0);
+        // glVertex3f(-10.0+0.5,5.0-0.5,larguraMaxima+0.001);
+        // glVertex3f(-10.0+0.5,-5.0+0.5,larguraMaxima+0.001);
+        // glVertex3f(10.0-0.5,-5.0+0.5,larguraMaxima+0.001);
+        // glVertex3f(10.0-0.5,5.0-0.5,larguraMaxima+0.001);
+        // //espelho
+        // glColor3f(.0,1.0,1.0);
+        // glVertex3f(-10.0+0.5,5.0-0.5,larguraMaxima-0.001 - espessuraParede);
+        // glVertex3f(-10.0+0.5,-5.0+0.5,larguraMaxima-0.001 - espessuraParede);
+        // glVertex3f(10.0-0.5,-5.0+0.5,larguraMaxima-0.001 - espessuraParede);
+        // glVertex3f(10.0-0.5,5.0-0.5,larguraMaxima-0.001 - espessuraParede);
     glEnd();
     glPopMatrix();
 }
@@ -1147,17 +1168,17 @@ void janelaDireita(){
         glVertex3f(30.0,-5.0,larguraMaxima);
         glVertex3f(30.0,5.0,larguraMaxima);
         //espelho
-        glColor3f(.0,1.0,1.0);
-        glVertex3f(30.0+0.5,5.0-0.5,larguraMaxima+0.01);
-        glVertex3f(30.0+0.5,-5.0+0.5,larguraMaxima+0.01);
-        glVertex3f(50.0-0.5,-5.0+0.5,larguraMaxima+0.01);
-        glVertex3f(50.0-0.5,5.0-0.5,larguraMaxima+0.01);
-        //espelho
-        glColor3f(.0,1.0,1.0);
-        glVertex3f(30.0+0.5,5.0-0.5,larguraMaxima-0.01 - espessuraParede);
-        glVertex3f(30.0+0.5,-5.0+0.5,larguraMaxima-0.01 - espessuraParede);
-        glVertex3f(50.0-0.5,-5.0+0.5,larguraMaxima-0.01 - espessuraParede);
-        glVertex3f(50.0-0.5,5.0-0.5,larguraMaxima-0.01 - espessuraParede);
+        // glColor3f(.0,1.0,1.0);
+        // glVertex3f(30.0+0.5,5.0-0.5,larguraMaxima+0.01);
+        // glVertex3f(30.0+0.5,-5.0+0.5,larguraMaxima+0.01);
+        // glVertex3f(50.0-0.5,-5.0+0.5,larguraMaxima+0.01);
+        // glVertex3f(50.0-0.5,5.0-0.5,larguraMaxima+0.01);
+        // //espelho
+        // glColor3f(.0,1.0,1.0);
+        // glVertex3f(30.0+0.5,5.0-0.5,larguraMaxima-0.01 - espessuraParede);
+        // glVertex3f(30.0+0.5,-5.0+0.5,larguraMaxima-0.01 - espessuraParede);
+        // glVertex3f(50.0-0.5,-5.0+0.5,larguraMaxima-0.01 - espessuraParede);
+        // glVertex3f(50.0-0.5,5.0-0.5,larguraMaxima-0.01 - espessuraParede);
     glEnd();
     glPopMatrix();
 }
@@ -1492,6 +1513,14 @@ void handleKeyDown(unsigned char key, int x, int y) {
             lampadasLigado = TRUE;
         }
     }
+    if(key == 'j' || key == 'J'){
+        if(janelaAberta){
+            janelaAberta = FALSE;
+        }
+        else{
+            janelaAberta = TRUE;
+        }
+    }
 }
 
 void handleKeyUp(unsigned char key, int x, int y) {
@@ -1520,6 +1549,29 @@ void update(){
         anguloVentilador+=1.0;
         if(anguloVentilador == 360){
             anguloVentilador =0;
+        }
+    }
+    if (janelaAberta) {
+        posicaoJanelaEsquerda += 0.2f;
+        if(posicaoJanelaEsquerda >= 15){
+            posicaoJanelaEsquerda = 15;
+            janelaAberta = TRUE;
+        }
+        posicaoJanelaDireita -= 0.2f;
+        if(posicaoJanelaDireita <= -15){
+            posicaoJanelaDireita = -15;
+            janelaAberta = TRUE;
+        }
+    } else {
+        posicaoJanelaEsquerda -= 0.2f;
+        if(posicaoJanelaEsquerda <= 0){
+            posicaoJanelaEsquerda = 0;
+            janelaAberta = FALSE;
+        }
+        posicaoJanelaDireita += 0.2f;
+        if(posicaoJanelaDireita >= 0){
+            posicaoJanelaDireita = 0;
+            janelaAberta = FALSE;
         }
     }
 
