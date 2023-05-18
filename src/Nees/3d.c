@@ -21,6 +21,7 @@ bool run = FALSE;
 bool portaAberta = FALSE;
 bool ventiladorLigado = FALSE;
 bool abajuresLigado = FALSE;
+bool lampadasLigado = FALSE;
 
 float anguloVentilador = 0.0;
 float anguloPorta = 0.0;
@@ -97,22 +98,30 @@ void plano();
 void mouseMove(int x, int y);
 
 void carregaTextura(GLuint tex_id, const char* filePath) {
+    // Variáveis para armazenar os dados da imagem
     unsigned char* imgData;
     int largura, altura, canais;
 
+    // Carrega a imagem usando a biblioteca STB Image
     imgData = stbi_load(filePath, &largura, &altura, &canais, 4);
 
     if (imgData) {
+        // Vincula a textura atual para configuração
         glBindTexture(GL_TEXTURE_2D, tex_id);
+
+        // Define os parâmetros da textura e envia os dados da imagem para o OpenGL
         glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, largura, altura, 0, GL_RGBA, GL_UNSIGNED_BYTE, imgData);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
+        // Define o comportamento de repetição da textura nos eixos S e T
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_LINEAR);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_LINEAR);
 
+        // Libera a memória alocada para os dados da imagem
         stbi_image_free(imgData);
     } else {
+        // Imprime uma mensagem de erro se a imagem não pôde ser carregada
         printf("Erro ao carregar a textura: %s\n", stbi_failure_reason());
         return;
     }
@@ -151,8 +160,20 @@ void setup_lighting(){
         glDisable(GL_LIGHT1);
         glDisable(GL_LIGHT2);
     }
+    if(lampadasLigado){
+        glEnable(GL_LIGHT3); // HABILITA A LUZ 3
+        glEnable(GL_LIGHT4); // HABILITA A LUZ 4
+        glEnable(GL_LIGHT5); // HABILITA A LUZ 5
+        glEnable(GL_LIGHT6); // HABILITA A LUZ 6
+
+    } else {
+        glDisable(GL_LIGHT3);
+        glDisable(GL_LIGHT4);
+        glDisable(GL_LIGHT5);
+        glDisable(GL_LIGHT6);
+    }
     glEnable(GL_COLOR_MATERIAL); // Habilita a cor de material
-    glColorMaterial(GL_FRONT, GL_AMBIENT_AND_DIFFUSE);
+    glColorMaterial(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE);
 
     float light_ambient[] = { 0.2f, 0.2f, 0.2f}; // Inicialmente vale 0.2f, 0.2f, 0.2f
     glLightfv(GL_LIGHT0, GL_AMBIENT, light_ambient);
@@ -176,35 +197,76 @@ void setup_lighting(){
     float light1_position[] = { 6.5f + 25.0f,0.0f,- 60.0f, 1.0 };
     float spot1_direction[] = { -1.f,-4.0f, -1.0f};
     float spot1_cutoff[] = { 45.0f };
-    float spot1_diffuse[] = { 1.0f, 0.0f, 0.0f };
+    float spot1_diffuse[] = { 1.0f, 1.0f, 0.0f };
     glLightfv(GL_LIGHT1, GL_DIFFUSE, spot1_diffuse);
     glLightfv(GL_LIGHT1, GL_SPECULAR, spot1_diffuse);
     glLightfv(GL_LIGHT1, GL_POSITION, light1_position);
     glLightfv(GL_LIGHT1, GL_SPOT_DIRECTION, spot1_direction);
     glLightfv(GL_LIGHT1, GL_SPOT_CUTOFF, spot1_cutoff);
-    // LUZ DA SEGUNDA LUMINARIA
+    // LUZ DA TERCEIRA LUMINARIA
     float light2_position[] = { 56.0f,-0.0f,-35.0f, 1.0 };
     float spot2_direction[] = { -1.f,-4.0f, -1.0f};
     float spot2_cutoff[] = { 45.0f };
-    float spot2_diffuse[] = { 0.0f, 1.0f, 1.0f };
+    float spot2_diffuse[] = { 1.0f, 1.0f, 0.0f };
     glLightfv(GL_LIGHT2, GL_DIFFUSE, spot2_diffuse);
     glLightfv(GL_LIGHT2, GL_SPECULAR, spot2_diffuse);
     glLightfv(GL_LIGHT2, GL_POSITION, light2_position);
     glLightfv(GL_LIGHT2, GL_SPOT_DIRECTION, spot2_direction);
     glLightfv(GL_LIGHT2, GL_SPOT_CUTOFF, spot2_cutoff);
+    // LUZ DO TETO 1
+    float light3_position[] = { 10.0f,10.0f,-20.0f, 1.0 };
+    float spot3_direction[] = { -1.f,-4.0f, -1.0f};
+    float spot3_cutoff[] = { 80.0f };
+    float spot3_diffuse[] = { 1.0f, 1.0f, 1.0f };
+    glLightfv(GL_LIGHT3, GL_DIFFUSE, spot3_diffuse);
+    glLightfv(GL_LIGHT3, GL_SPECULAR, spot3_diffuse);
+    glLightfv(GL_LIGHT3, GL_POSITION, light3_position);
+    glLightfv(GL_LIGHT3, GL_SPOT_DIRECTION, spot3_direction);
+    glLightfv(GL_LIGHT3, GL_SPOT_CUTOFF, spot3_cutoff);
+    // LUZ DO TETO 2
+    float light4_position[] = { 10.0f,10.0f,-60.0f, 1.0 };
+    float spot4_direction[] = { -1.f,-4.0f, -1.0f};
+    float spot4_cutoff[] = { 80.0f };
+    float spot4_diffuse[] = { 1.0f, 1.0f, 1.0f };
+    glLightfv(GL_LIGHT4, GL_DIFFUSE, spot4_diffuse);
+    glLightfv(GL_LIGHT4, GL_SPECULAR, spot4_diffuse);
+    glLightfv(GL_LIGHT4, GL_POSITION, light4_position);
+    glLightfv(GL_LIGHT4, GL_SPOT_DIRECTION, spot4_direction);
+    glLightfv(GL_LIGHT4, GL_SPOT_CUTOFF, spot4_cutoff);
+    // LUZ DO TETO 3
+    float light5_position[] = { 50.0f,10.0f,-20.0f, 1.0 };
+    float spot5_direction[] = { -1.f,-4.0f, -1.0f};
+    float spot5_cutoff[] = { 80.0f };
+    float spot5_diffuse[] = { 1.0f, 1.0f, 1.0f };
+    glLightfv(GL_LIGHT5, GL_DIFFUSE, spot5_diffuse);
+    glLightfv(GL_LIGHT5, GL_SPECULAR, spot5_diffuse);
+    glLightfv(GL_LIGHT5, GL_POSITION, light5_position);
+    glLightfv(GL_LIGHT5, GL_SPOT_DIRECTION, spot5_direction);
+    glLightfv(GL_LIGHT5, GL_SPOT_CUTOFF, spot5_cutoff);
+    // LUZ DO TETO 4
+    float light6_position[] = { 50.0f,10.0f,-60.0f, 1.0 };
+    float spot6_direction[] = { -1.f,-4.0f, -1.0f};
+    float spot6_cutoff[] = { 80.0f };
+    float spot6_diffuse[] = { 1.0f, 1.0f, 1.0f };
+    glLightfv(GL_LIGHT6, GL_DIFFUSE, spot6_diffuse);
+    glLightfv(GL_LIGHT6, GL_SPECULAR, spot6_diffuse);
+    glLightfv(GL_LIGHT6, GL_POSITION, light6_position);
+    glLightfv(GL_LIGHT6, GL_SPOT_DIRECTION, spot6_direction);
+    glLightfv(GL_LIGHT6, GL_SPOT_CUTOFF, spot6_cutoff);
 
 }
 
 void init(){ // Função de inicialização
-    glEnable(GL_DEPTH_TEST); // HABILITA O TESTE DE PROFUNDIDADE
 
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); // Limpa o buffer de cor e o buffer de profundidade
     //TEXTURAS
     glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
+    glEnable(GL_DEPTH_TEST); // HABILITA O TESTE DE PROFUNDIDADE
     glGenTextures(5, texID);
     carregaTextura(texID[0], "texturas/floor2.jpg");
     carregaTextura(texID[1], "texturas/parede2.png");
     carregaTextura(texID[2], "texturas/frente_frigobar.png");
+    carregaTextura(texID[3], "texturas/livros.jpg");
 
     setup_lighting();
 }
@@ -450,52 +512,70 @@ void renderScene() { // Função de renderização da cena
     //armario - parte1
     glPushMatrix();
     glTranslatef(-15.0f, -2.0f, -30.0f);
-    armario();
+    glEnable(GL_TEXTURE_2D);
+    armario(texID[3]);
+    glDisable(GL_TEXTURE_2D);
     portaArmario();
     glPopMatrix();
     //armario - parte2
     glPushMatrix();
     glTranslatef(-15.0f, -5.0f-2.0f, -30.0f);
-    armario();
+    glEnable(GL_TEXTURE_2D);
+    armario(texID[3]);
+    glDisable(GL_TEXTURE_2D);
     glPopMatrix();
     //armario - parte3
     glPushMatrix();
     glTranslatef(-15.0f, +5.0f-2.0f, -30.0f);
-    armario();
+    glEnable(GL_TEXTURE_2D);
+    armario(texID[3]);
+    glDisable(GL_TEXTURE_2D);
     glPopMatrix();
     //armario - parte4
     glPushMatrix();
     glTranslatef(-15.0f, -2.0f, -35.0f);
-    armario();
+    glEnable(GL_TEXTURE_2D);
+    armario(texID[3]);
+    glDisable(GL_TEXTURE_2D);
     portaArmario();
     glPopMatrix();
     //armario - parte5
     glPushMatrix();
     glTranslatef(-15.0f, -5.0f-2.0f, -35.0f);
-    armario();
+    glEnable(GL_TEXTURE_2D);
+    armario(texID[3]);
+    glDisable(GL_TEXTURE_2D);
     portaArmario();
     glPopMatrix();
     //armario - parte6
     glPushMatrix();
     glTranslatef(-15.0f, +5.0f-2.0f, -35.0f);
-    armario();
+    glEnable(GL_TEXTURE_2D);
+    armario(texID[3]);
+    glDisable(GL_TEXTURE_2D);
     portaArmario();
     glPopMatrix();
     //armario - parte7
     glPushMatrix();
     glTranslatef(-15.0f, -2.0f, -40.0f);
-    armario();
+    glEnable(GL_TEXTURE_2D);
+    armario(texID[3]);
+    glDisable(GL_TEXTURE_2D);
     portaArmario();
     glPopMatrix();
     //armario - parte8
     glPushMatrix();
     glTranslatef(-15.0f, -5.0f-2.0f, -40.0f);
-    armario();
+    glEnable(GL_TEXTURE_2D);
+    armario(texID[3]);
+    glDisable(GL_TEXTURE_2D);
     glPopMatrix();
     //armario - parte9
     glPushMatrix();
     glTranslatef(-15.0f, +5.0f-2.0f, -40.0f);
-    armario();
+    glEnable(GL_TEXTURE_2D);
+    armario(texID[3]);
+    glDisable(GL_TEXTURE_2D);
     glPopMatrix();
 
     //ventilador 1
@@ -548,6 +628,32 @@ void renderScene() { // Função de renderização da cena
     // glTranslatef(6.5f + 25.0f,-2.0,- 60.0f);
     // glutSolidSphere(0.2f, 100.f, 200.f);
     // glPopMatrix();
+
+    //LAMPADAS TETO
+    //lampada 1
+    glPushMatrix();
+    glTranslatef(0.0f,8.0f,-20.0f);
+    glColor3f(1.0f,1.0f,1.0f);
+    paralelepipedo(12.0f,0.5f,2.0f);
+    glPopMatrix();
+    //lampada 2
+    glPushMatrix();
+    glTranslatef(0.0f,8.0f,-60.0f);
+    glColor3f(1.0f,1.0f,1.0f);
+    paralelepipedo(12.0f,0.5f,2.0f);
+    glPopMatrix();
+    //lampada 3
+    glPushMatrix();
+    glTranslatef(40.0f,8.0f,-20.0f);
+    glColor3f(1.0f,1.0f,1.0f);
+    paralelepipedo(12.0f,0.5f,2.0f);
+    glPopMatrix();
+    //lampada 4
+    glPushMatrix();
+    glTranslatef(40.0f,8.0f,-60.0f);
+    glColor3f(1.0f,1.0f,1.0f);
+    paralelepipedo(12.0f,0.5f,2.0f);
+    glPopMatrix();
 
 
 
@@ -1136,7 +1242,9 @@ void cadeira(){
     glPopMatrix();
 }
 
-void armario(){
+void armario(GLuint texID){
+    glBindTexture(GL_TEXTURE_2D, texID);
+
     // FACE ESQUERDA
     glPushMatrix();
     glScalef(5.0,5.0,5.0);
@@ -1154,10 +1262,13 @@ void armario(){
 
     // Desenha a face traseira do cubo
     glBegin(GL_QUADS);
-    glColor3f(0.6,0.6,0.6);
+    glTexCoord2f(0.0,0.0);
     glVertex3f(-0.5, -0.5, 0.5); // Vértice 1
+    glTexCoord2f(1.0,0.0);
     glVertex3f(0.5, -0.5, 0.5); // Vértice 2
+    glTexCoord2f(1.0,1.0);
     glVertex3f(0.5, 0.5, 0.5); // Vértice 3
+    glTexCoord2f(0.0,1.0);
     glVertex3f(-0.5, 0.5, 0.5); // Vértice 4
     glEnd();
 
@@ -1371,6 +1482,14 @@ void handleKeyDown(unsigned char key, int x, int y) {
         }
         else{
             abajuresLigado = TRUE;
+        }
+    }
+    if(key == 'l' || key == 'L'){
+        if(lampadasLigado){
+            lampadasLigado = FALSE;
+        }
+        else{
+            lampadasLigado = TRUE;
         }
     }
 }
