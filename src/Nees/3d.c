@@ -203,6 +203,8 @@ void init(){ // Função de inicialização
     glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
     glGenTextures(5, texID);
     carregaTextura(texID[0], "texturas/floor2.jpg");
+    carregaTextura(texID[1], "texturas/parede2.png");
+    carregaTextura(texID[2], "texturas/frente_frigobar.png");
 
     setup_lighting();
 }
@@ -224,7 +226,9 @@ void renderScene() { // Função de renderização da cena
     glEnable(GL_TEXTURE_2D);
     chao(texID[0]);
     glDisable(GL_TEXTURE_2D);
-    parede();
+    glEnable(GL_TEXTURE_2D);
+    parede(texID[1]);
+    glDisable(GL_TEXTURE_2D);
     fechadura();
 
     glPushMatrix();
@@ -431,13 +435,17 @@ void renderScene() { // Função de renderização da cena
     glPushMatrix();
     glTranslatef(-15.0f, -2.0f, -12.0f);
     frigobar();
-    portaFrigobar();
+    glEnable(GL_TEXTURE_2D);
+    portaFrigobar(texID[2]);
+    glDisable(GL_TEXTURE_2D);
     glPopMatrix();
     //FRIGOBAR - parte2
     glPushMatrix();
     glTranslatef(-15.0f, -5.0f-2.0f, -12.0f);
     frigobar();
-    portaFrigobar();
+    glEnable(GL_TEXTURE_2D);
+    portaFrigobar(texID[2]);
+    glDisable(GL_TEXTURE_2D);
     glPopMatrix();
     //armario - parte1
     glPushMatrix();
@@ -547,22 +555,31 @@ void renderScene() { // Função de renderização da cena
 }
 
 //OBJETOS
-void parede(){
+void parede(GLuint texID){
 
     glPushMatrix();
+    glBindTexture(GL_TEXTURE_2D, texID);
     //FACE FRENTE
     //FACE ESQUERDA DA FRENTE
     glBegin(GL_QUADS);
         //face frente
         glColor3f(0.7, 0.7, 0.7);
+        glTexCoord2f(0.0,0.0);
         glVertex3f(-20.0,6.0,10.0);
+        glTexCoord2f(1.0,0.0);
         glVertex3f(-20.0,-10.0,10.0);
+        glTexCoord2f(1.0,1.0);
         glVertex3f(-16.0,-10.0,10.0);
+        glTexCoord2f(0.0,1.0);
         glVertex3f(-16.0,6.0,10.0);
         //espessura
+        glTexCoord2f(0.0,0.0);
         glVertex3f(-20.0,6.0,10.0 - espessuraParede);
+        glTexCoord2f(1.0,0.0);
         glVertex3f(-20.0,-10.0,10.0 - espessuraParede);
+        glTexCoord2f(1.0,1.0);
         glVertex3f(-16.0,-10.0,10.0 - espessuraParede);
+        glTexCoord2f(0.0,1.0);
         glVertex3f(-16.0,6.0,10.0 - espessuraParede);
         //face direita
         glVertex3f(-16.0,6.0,10.0 - espessuraParede);
@@ -583,14 +600,22 @@ void parede(){
         //FACE DIREITA - FRENTE
         //frente
         glColor3f(0.7,0.7,0.7);
+        glTexCoord2f(0.0,0.0);
         glVertex3f(-8.0,6.0,10.0);
+        glTexCoord2f(1.0,0.0);
         glVertex3f(-8.0,-10.0,10.0);
+        glTexCoord2f(1.0,1.0);
         glVertex3f(comprimentoMaximo,-10.0,10.0);
+        glTexCoord2f(0.0,1.0);
         glVertex3f(comprimentoMaximo,6.0,10.0);
         //expessura
+        glTexCoord2f(0.0,0.0);
         glVertex3f(-8.0,6.0,10.0 - espessuraParede);
+        glTexCoord2f(1.0,0.0);
         glVertex3f(-8.0,-10.0,10.0 - espessuraParede);
+        glTexCoord2f(1.0,1.0);
         glVertex3f(comprimentoMaximo,-10.0,10.0 - espessuraParede);
+        glTexCoord2f(0.0,1.0);
         glVertex3f(comprimentoMaximo,6.0,10.0 - espessuraParede);
         //direita
         glVertex3f(comprimentoMaximo,6.0,10.0 - espessuraParede);
@@ -610,14 +635,22 @@ void parede(){
         //FACE CIMA - FRENTE
         //Face cima - frente
         glColor3f(0.7,0.7,0.7);
+        glTexCoord2f(1.0,0.0);
         glVertex3f(-20.0,10.0,10.0);
+        glTexCoord2f(0.0,0.0);
         glVertex3f(-20.0,6.0,10.0);
+        glTexCoord2f(0.0,1.0);
         glVertex3f(comprimentoMaximo,6.0,10.0);
+        glTexCoord2f(1.0,1.0);
         glVertex3f(comprimentoMaximo,10.0,10.0);
         //expessura
+        glTexCoord2f(0.0,0.0);
         glVertex3f(-20.0,10.0,10.0 - espessuraParede);
+        glTexCoord2f(1.0,0.0);
         glVertex3f(-20.0,6.0,10.0 - espessuraParede);
+        glTexCoord2f(1.0,1.0);
         glVertex3f(comprimentoMaximo,6.0,10.0 - espessuraParede);
+        glTexCoord2f(0.0,1.0);
         glVertex3f(comprimentoMaximo,10.0,10.0 - espessuraParede);
         //direita
         glVertex3f(comprimentoMaximo,10.0,10.0 - espessuraParede);
@@ -644,39 +677,62 @@ void parede(){
         // FACE DE TRÁS
         // FACE DA FRENTE - TRÁS - ESUQERDA
         glColor3f(0.7,0.7,0.7);
+        glTexCoord2f(0.0,0.0);
         glVertex3f(-20.0,10.0,larguraMaxima);
+        glTexCoord2f(1.0,0.0);
         glVertex3f(-20.0,-10.0,larguraMaxima);
+        glTexCoord2f(1.0,1.0);
         glVertex3f(-10.0,-10.0,larguraMaxima);
+        glTexCoord2f(0.0,1.0);
         glVertex3f(-10.0,10.0,larguraMaxima);
         //
         //espessura
+        glTexCoord2f(0.0,0.0);
         glVertex3f(-20.0,10.0,larguraMaxima - espessuraParede);
+        glTexCoord2f(1.0,0.0);
         glVertex3f(-20.0,-10.0,larguraMaxima - espessuraParede);
+        glTexCoord2f(1.0,1.0);
         glVertex3f(-10.0,-10.0,larguraMaxima - espessuraParede);
+        glTexCoord2f(0.0,1.0);
         glVertex3f(-10.0,10.0,larguraMaxima - espessuraParede);
         // FACE DA FRENTE - TRÁS - DIREITA
         glColor3f(0.7,0.7,0.7);
+        glTexCoord2f(0.0,0.0);
         glVertex3f(50.0,10.0,larguraMaxima);
+        glTexCoord2f(1.0,0.0);
         glVertex3f(50.0,-10.0,larguraMaxima);
+        glTexCoord2f(1.0,1.0);
         glVertex3f(60.0,-10.0,larguraMaxima);
+        glTexCoord2f(0.0,1.0);
         glVertex3f(60.0,10.0,larguraMaxima);
         //
         //espessura
+        glTexCoord2f(0.0,0.0);
         glVertex3f(50.0,10.0,larguraMaxima - espessuraParede);
+        glTexCoord2f(1.0,0.0);
         glVertex3f(50.0,-10.0,larguraMaxima - espessuraParede);
+        glTexCoord2f(1.0,1.0);
         glVertex3f(60.0,-10.0,larguraMaxima - espessuraParede);
+        glTexCoord2f(0.0,1.0);
         glVertex3f(60.0,10.0,larguraMaxima - espessuraParede);
         // FACE DA FRENTE - TRÁS - CIMA
-        glColor3f(0.7,0.7,0.7);
+        glTexCoord2f(0.0,0.0);
         glVertex3f(-20.0,10.0,larguraMaxima);
+        glTexCoord2f(1.0,0.0);
         glVertex3f(-20.0,5.0,larguraMaxima);
+        glTexCoord2f(1.0,1.0);
         glVertex3f(comprimentoMaximo,5.0,larguraMaxima);
+        glTexCoord2f(0.0,1.0);
         glVertex3f(comprimentoMaximo,10.0,larguraMaxima);
         //
         //espessura
+        glTexCoord2f(0.0,0.0);
         glVertex3f(-10.0,10.0,larguraMaxima - espessuraParede);
+        glTexCoord2f(1.0,0.0);
         glVertex3f(-10.0,5.0,larguraMaxima - espessuraParede);
+        glTexCoord2f(1.0,1.0);
         glVertex3f(comprimentoMaximo,5.0,larguraMaxima - espessuraParede);
+        glTexCoord2f(0.0,1.0);
         glVertex3f(comprimentoMaximo,10.0,larguraMaxima - espessuraParede);
         // FACE DA FRENTE - TRÁS - BAIXO
         glColor3f(0.7,0.7,0.7);
@@ -686,21 +742,33 @@ void parede(){
         glVertex3f(comprimentoMaximo,-5.0,larguraMaxima);
         //
         //espessura
+        glTexCoord2f(0.0,0.0);
         glVertex3f(-20.0,-5.0,larguraMaxima - espessuraParede);
+        glTexCoord2f(1.0,0.0);
         glVertex3f(-20.0,-10.0,larguraMaxima - espessuraParede);
+        glTexCoord2f(1.0,1.0);
         glVertex3f(comprimentoMaximo,-10.0,larguraMaxima - espessuraParede);
+        glTexCoord2f(0.0,1.0);
         glVertex3f(comprimentoMaximo,-5.0,larguraMaxima - espessuraParede);
         // FACE DA FRENTE - TRÁS - MEIO
         glColor3f(0.7,0.7,0.7);
+        glTexCoord2f(0.0,0.0);
         glVertex3f(10.0,10.0,larguraMaxima);
+        glTexCoord2f(1.0,0.0);
         glVertex3f(10.0,-10.0,larguraMaxima);
+        glTexCoord2f(1.0,1.0);
         glVertex3f(30.0,-10.0,larguraMaxima);
+        glTexCoord2f(0.0,1.0);
         glVertex3f(30.0,10.0,larguraMaxima);
         //
         //espessura
+        glTexCoord2f(0.0,0.0);
         glVertex3f(10.0,10.0,larguraMaxima - espessuraParede);
+        glTexCoord2f(1.0,0.0);
         glVertex3f(10.0,-10.0,larguraMaxima - espessuraParede);
+        glTexCoord2f(1.0,1.0);
         glVertex3f(30.0,-10.0,larguraMaxima - espessuraParede);
+        glTexCoord2f(0.0,1.0);
         glVertex3f(30.0,10.0,larguraMaxima - espessuraParede);
         //face esquerda
         glVertex3f(-20.0,10.0,larguraMaxima- espessuraParede);
@@ -718,60 +786,100 @@ void parede(){
         glVertex3f(comprimentoMaximo,-10.0,larguraMaxima);
         glVertex3f(comprimentoMaximo,-10.0,larguraMaxima - espessuraParede);
         //FACE DE TRAS - TRÁS - DIREITA
+        glTexCoord2f(0.0,0.0);
         glVertex3f(comprimentoMaximo,10.0,larguraMaxima- espessuraParede);
+        glTexCoord2f(1.0,0.0);
         glVertex3f(comprimentoMaximo,-10.0,larguraMaxima - espessuraParede);
+        glTexCoord2f(1.0,1.0);
         glVertex3f(comprimentoMaximo,-10.0,larguraMaxima);
+        glTexCoord2f(0.0,1.0);
         glVertex3f(comprimentoMaximo,10.0,larguraMaxima);
         // FACE DIREITA
         //frente
+        glTexCoord2f(0.0,0.0);
         glVertex3f(comprimentoMaximo,10.0,10.0);
+        glTexCoord2f(1.0,0.0);
         glVertex3f(comprimentoMaximo,-10.0,10.0);
+        glTexCoord2f(1.0,1.0);
         glVertex3f(comprimentoMaximo,-10.0,larguraMaxima);
+        glTexCoord2f(0.0,1.0);
         glVertex3f(comprimentoMaximo,10.0,larguraMaxima);
         //espessura
+        glTexCoord2f(0.0,0.0);
         glVertex3f(comprimentoMaximo - espessuraParede,10.0,10.0);
+        glTexCoord2f(1.0,0.0);
         glVertex3f(comprimentoMaximo - espessuraParede,-10.0,10.0);
+        glTexCoord2f(1.0,1.0);
         glVertex3f(comprimentoMaximo - espessuraParede,-10.0,larguraMaxima);
+        glTexCoord2f(0.0,1.0);
         glVertex3f(comprimentoMaximo - espessuraParede,10.0,larguraMaxima);
         // FACE DIREITA DENTRO
         //frente
+        glTexCoord2f(0.0,0.0);
         glVertex3f(-6.0,10.0,10.0);
+        glTexCoord2f(1.0,0.0);
         glVertex3f(-6.0,-10.0,10.0);
+        glTexCoord2f(1.0,1.0);
         glVertex3f(-6.0,-10.0,-10.0);
+        glTexCoord2f(0.0,1.0);
         glVertex3f(-6.0,10.0,-10.0);
         //espessura
+        glTexCoord2f(0.0,0.0);
         glVertex3f(-6.0 - espessuraParede,10.0,10.0);
+        glTexCoord2f(1.0,0.0);
         glVertex3f(-6.0 - espessuraParede,-10.0,10.0);
+        glTexCoord2f(1.0,1.0);
         glVertex3f(-6.0 - espessuraParede,-10.0,-10.0);
+        glTexCoord2f(0.0,1.0);
         glVertex3f(-6.0 - espessuraParede,10.0,-10.0);
         //tras
+        glTexCoord2f(0.0,0.0);
         glVertex3f(-6.0,10.0,-10.0);
+        glTexCoord2f(1.0,0.0);
         glVertex3f(-6.0 - espessuraParede,10.0,-10.0);
+        glTexCoord2f(1.0,1.0);
         glVertex3f(-6.0 - espessuraParede,-10.0,-10.0);
+        glTexCoord2f(0.0,1.0);
         glVertex3f(-6.0,-10.0,-10.0);
         // FACE ESQUERDA
         //frente
-        glColor3f(0.7,0.7,0.7);
+        glTexCoord2f(0.0,0.0);
         glVertex3f(-20.0,10.0,10.0);
+        glTexCoord2f(1.0,0.0);
         glVertex3f(-20.0,-10.0,10.0);
+        glTexCoord2f(1.0,1.0);
         glVertex3f(-20.0,-10.0,larguraMaxima);
+        glTexCoord2f(0.0,1.0);
         glVertex3f(-20.0,10.0,larguraMaxima);
+        glColor3f(0.7,0.7,0.7);
         //espessura
+        glTexCoord2f(0.0,0.0);
         glVertex3f(-20.0 + espessuraParede,10.0,10.0);
+        glTexCoord2f(1.0,0.0);
         glVertex3f(-20.0 + espessuraParede,-10.0,10.0);
+        glTexCoord2f(1.0,1.0);
         glVertex3f(-20.0 + espessuraParede,-10.0,larguraMaxima);
+        glTexCoord2f(0.0,1.0);
         glVertex3f(-20.0 + espessuraParede,10.0,larguraMaxima);
         //FACE DE CIMA
         //frente
-        glColor3f(0.9,0.9,0.9);
+        glTexCoord2f(0.0,0.0);
         glVertex3f(-20.0,10.0,larguraMaxima);
+        glTexCoord2f(1.0,0.0);
         glVertex3f(-20.0,10.0,10.0);
+        glTexCoord2f(1.0,1.0);
         glVertex3f(comprimentoMaximo,10.0,10.0);
+        glTexCoord2f(0.0,1.0);
         glVertex3f(comprimentoMaximo,10.0,larguraMaxima);
+        glColor3f(0.9,0.9,0.9);
         //espessura
+        glTexCoord2f(0.0,0.0);
         glVertex3f(-20.0,10.0 - espessuraParede,larguraMaxima);
+        glTexCoord2f(1.0,0.0);
         glVertex3f(-20.0,10.0 - espessuraParede,10.0);
+        glTexCoord2f(1.0,1.0);
         glVertex3f(comprimentoMaximo,10.0 - espessuraParede,10.0);
+        glTexCoord2f(0.0,1.0);
         glVertex3f(comprimentoMaximo,10.0 - espessuraParede,larguraMaxima);
     glEnd();
     glPopMatrix();
@@ -1151,15 +1259,21 @@ void frigobar(){
     glPopMatrix();
 }
 
-void portaFrigobar(){
+void portaFrigobar(GLuint texID){
+    glBindTexture(GL_TEXTURE_2D, texID);
+
     glPushMatrix();
     glScalef(5.0,5.0,5.0);
     glRotatef(-90.0f,0.0f,1.0f,0.0f);
     glBegin(GL_QUADS);
     glColor3f(0.6,0.1,0.1);
+        glTexCoord2f(0.0,1.0);
     glVertex3f(-0.5, -0.5, -0.5); // Vértice 1
+        glTexCoord2f(1.0,1.0);
     glVertex3f(0.5, -0.5, -0.5); // Vértice 2
+        glTexCoord2f(1.0,0.0);
     glVertex3f(0.5, 0.5, -0.5); // Vértice 3
+        glTexCoord2f(0.0,0.0);
     glVertex3f(-0.5, 0.5, -0.5); // Vértice 4
     glEnd();
     glPopMatrix();
