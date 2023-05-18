@@ -46,6 +46,8 @@ void ventilador();
 
 //PARALELEPIPEDO
 void paralelepipedo(float comprimento, float altura, float profundidade);
+//Função de animação
+void timer(int);
 
 int main(int argc, char** argv) {
     glutInit(&argc, argv); // Inicializa o GLUT
@@ -82,7 +84,8 @@ void renderScene() { // Função de renderização da cena
 
     // Desenhe a renderScene aqui
     // Desenhe um cubo colorido
-
+ // Definindo as coordenadas dos vértices
+    
     chao();
     parede();
     fechadura();
@@ -276,7 +279,7 @@ void renderScene() { // Função de renderização da cena
     //mesa6
     glPushMatrix();
     glColor3f(0.84f, 0.6f, 0.36f);
-    glTranslatef(-15.0f,-5.0f, -62.0);
+    glTranslatef(-14.0f,-5.0f, -62.0);
     paralelepipedo(10.0f,1.0f,36.0f);
     glPopMatrix();
     //FRIGOBAR - parte1
@@ -412,6 +415,12 @@ void keyboard(unsigned char key, int x, int y) {
         if (cameraRotateY < -89.0f) {
             cameraRotateY = -89.0f;
         }
+        break;
+    // Aperte j ou J, para abrir a janela
+    case 'j':
+    case 'J':
+        // Com glutTimerFunc a função timer é chamada de 0 milisegundos em 0 milisegundos
+        // glutTimerFunc(0, timer, 0);
         break;
     case 27:
         exit(0);
@@ -703,6 +712,8 @@ void fechadura(){
 
 void porta(){
     glPushMatrix();
+    glTranslatef(-26.0f,0.0f,-8.0f);
+    glRotatef(90.0f,0.0f,1.0f,0.0f);
     glBegin(GL_QUADS);
         glColor3f(0.6f, 0.3f, 0.1f);
         //face frente
@@ -736,45 +747,50 @@ void porta(){
 
 }
 
+float xJanelaEsquerda = 10.0;
+float xJanelaDireita = 10.0;
+
+int state = 1;
+
 void janelaEsquerda(){
     glPushMatrix();
     glBegin(GL_QUADS);
         //bordas brancas - frente
         glColor3f(1.0,1.0,1.0);
-        glVertex3f(-10.0,5.0,larguraMaxima);
-        glVertex3f(-10.0,-5.0,larguraMaxima);
-        glVertex3f(10.0,-5.0,larguraMaxima);
-        glVertex3f(10.0,5.0,larguraMaxima);
+        glVertex3f(-xJanelaEsquerda,5.0,larguraMaxima);
+        glVertex3f(-xJanelaEsquerda,-5.0,larguraMaxima);
+        glVertex3f(xJanelaEsquerda,-5.0,larguraMaxima);
+        glVertex3f(xJanelaEsquerda,5.0,larguraMaxima);
         //bordas brancas - espessura
         glColor3f(1.0,1.0,1.0);
-        glVertex3f(-10.0,5.0,larguraMaxima - espessuraParede);
-        glVertex3f(-10.0,-5.0,larguraMaxima - espessuraParede);
-        glVertex3f(10.0,-5.0,larguraMaxima - espessuraParede);
-        glVertex3f(10.0,5.0,larguraMaxima - espessuraParede);
+        glVertex3f(-xJanelaEsquerda,5.0,larguraMaxima - espessuraParede);
+        glVertex3f(-xJanelaEsquerda,-5.0,larguraMaxima - espessuraParede);
+        glVertex3f(xJanelaEsquerda,-5.0,larguraMaxima - espessuraParede);
+        glVertex3f(xJanelaEsquerda,5.0,larguraMaxima - espessuraParede);
         //bordas brancas - direita
         glColor3f(1.0,1.0,1.0);
-        glVertex3f(10.0,5.0,larguraMaxima - espessuraParede);
-        glVertex3f(10.0,-5.0,larguraMaxima - espessuraParede);
-        glVertex3f(10.0,-5.0,larguraMaxima);
-        glVertex3f(10.0,5.0,larguraMaxima);
+        glVertex3f(xJanelaEsquerda,5.0,larguraMaxima - espessuraParede);
+        glVertex3f(xJanelaEsquerda,-5.0,larguraMaxima - espessuraParede);
+        glVertex3f(xJanelaEsquerda,-5.0,larguraMaxima);
+        glVertex3f(xJanelaEsquerda,5.0,larguraMaxima);
         //bordas brancas - esquerda
         glColor3f(1.0,1.0,1.0);
-        glVertex3f(-10.0,5.0,larguraMaxima - espessuraParede);
-        glVertex3f(-10.0,-5.0,larguraMaxima - espessuraParede);
-        glVertex3f(-10.0,-5.0,larguraMaxima);
-        glVertex3f(-10.0,5.0,larguraMaxima);
+        glVertex3f(-xJanelaEsquerda,5.0,larguraMaxima - espessuraParede);
+        glVertex3f(-xJanelaEsquerda,-5.0,larguraMaxima - espessuraParede);
+        glVertex3f(-xJanelaEsquerda,-5.0,larguraMaxima);
+        glVertex3f(-xJanelaEsquerda,5.0,larguraMaxima);
         //espelho
         glColor3f(.0,1.0,1.0);
-        glVertex3f(-10.0+0.5,5.0-0.5,larguraMaxima+0.01);
-        glVertex3f(-10.0+0.5,-5.0+0.5,larguraMaxima+0.01);
-        glVertex3f(10.0-0.5,-5.0+0.5,larguraMaxima+0.01);
-        glVertex3f(10.0-0.5,5.0-0.5,larguraMaxima+0.01);
+        glVertex3f(-xJanelaEsquerda+0.5,5.0-0.5,larguraMaxima+0.01);
+        glVertex3f(-xJanelaEsquerda+0.5,-5.0+0.5,larguraMaxima+0.01);
+        glVertex3f(xJanelaEsquerda-0.5,-5.0+0.5,larguraMaxima+0.01);
+        glVertex3f(xJanelaEsquerda-0.5,5.0-0.5,larguraMaxima+0.01);
         //espelho
         glColor3f(.0,1.0,1.0);
-        glVertex3f(-10.0+0.5,5.0-0.5,larguraMaxima-0.01 - espessuraParede);
-        glVertex3f(-10.0+0.5,-5.0+0.5,larguraMaxima-0.01 - espessuraParede);
-        glVertex3f(10.0-0.5,-5.0+0.5,larguraMaxima-0.01 - espessuraParede);
-        glVertex3f(10.0-0.5,5.0-0.5,larguraMaxima-0.01 - espessuraParede);
+        glVertex3f(-xJanelaEsquerda+0.5,5.0-0.5,larguraMaxima-0.01 - espessuraParede);
+        glVertex3f(-xJanelaEsquerda+0.5,-5.0+0.5,larguraMaxima-0.01 - espessuraParede);
+        glVertex3f(xJanelaEsquerda-0.5,-5.0+0.5,larguraMaxima-0.01 - espessuraParede);
+        glVertex3f(xJanelaEsquerda-0.5,5.0-0.5,larguraMaxima-0.01 - espessuraParede);
     glEnd();
     glPopMatrix();
 }
@@ -1047,3 +1063,28 @@ void ventilador(){
     paralelepipedo(0.2f,4.0f,0.2f);
     glPopMatrix();
 }
+
+
+// void timer(int)
+// {
+//     glutPostRedisplay();
+//     // Definindo a animação com 60FPS
+//     glutTimerFunc(1000/60, timer, 0);
+
+//     switch(state)
+//     {
+//         case 1:
+//             while(xJanelaEsquerda < 20){
+//                 gTranslatef();
+//             }
+//             state = -1;
+//             break;
+//         case -1:
+//             if(xJanelaEsquerda > 10)
+//                 xJanelaEsquerda -= 0.10;
+//             else
+//                 state = -1;
+//             break;
+//     }
+    
+// }
