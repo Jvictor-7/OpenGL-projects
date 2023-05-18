@@ -1,2 +1,23 @@
-all: 
-	gcc 3d.c -o 3d -lGL -lGLU -lglut -lm
+# --- COMPILA PROGRAMAS OPENGL ---
+# --- COMO USAR? ---
+# --- DIGITE: make programa ---
+
+# --- COMPILADOR ---
+CC = gcc
+
+# --- LIBS USADAS ---
+XLIBS = -Wall -lGL -lGLU -lglut -lm
+
+# --- ARQUIVO EXE ---
+ARQ = -o $@
+##### RULES #####
+
+.SUFFIXES: .c
+
+.c: 
+	$(CC) $< $(ARQ) $(XLIBS) 
+
+##### TARGETS ######
+
+clean:
+	-rm *.o *~
