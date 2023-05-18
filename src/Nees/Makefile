@@ -1,2 +1,2 @@
 all: 
-	g++ 3d.cpp -o 3d -lGL -lGLU -lglut
+	gcc 3d.c -o 3d -lGL -lGLU -lglut -lm

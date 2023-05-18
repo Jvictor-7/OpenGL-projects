@@ -1,11 +1,36 @@
 #include <GL/glut.h>
+#include <stdio.h>
+#define STB_IMAGE_IMPLEMENTATION
+#include "stb_image.h"
+
+// define a taxa de FPS desejada (60 FPS)
+#define DESIRED_FPS 60
+#define FALSE 0
+#define TRUE 1
+
+typedef int bool;
 
 int width = 800; //largura da janela
 int height = 600; // altura da janela
 
-float cameraPosX = 0.0f; // posição da câmera no eixo X
+bool front = FALSE;
+bool back = FALSE;
+bool left = FALSE;
+bool right = FALSE;
+bool run = FALSE;
+bool portaAberta = FALSE;
+bool ventiladorLigado = FALSE;
+bool abajuresLigado = FALSE;
+
+float anguloVentilador = 0.0;
+float anguloPorta = 0.0;
+
+float cameraSpeed = 0.1f; // Velocidade de movimento da câmera
+
+
+float cameraPosX = -10.0f; // posição da câmera no eixo X
 float cameraPosY = 0.0f; // posição da câmera no eixo Y
-float cameraPosZ = 3.0f; // posição da câmera no eixo Z
+float cameraPosZ = 40.0f; // posição da câmera no eixo Z
 
 float cameraFrontX = 0.0f; // direção que a câmera está apontando no eixo X
 float cameraFrontY = 0.0f; // direção que a câmera está apontando no eixo Y
@@ -18,19 +43,37 @@ float cameraUpZ = 0.0f; // direção "para cima" da câmera no eixo Z
 float cameraRotateX = 0.0f; // rotação horizontal da câmera
 float cameraRotateY = 0.0f; // rotação vertical da câmera
 
+float mouseRateMove = 0.5;
+int positionMouseX = 0;
+int positionMouseY = 0;
+
 float comprimentoMaximo = 60.0; //Comprimeneto do lab
 float larguraMaxima = -80.0; // largura do lab
 //PAREDE
 float espessuraParede = 1.5f;
 
+//TEXTURAS
+GLuint texID[5];
+
+
 void init(); // Função de inicialização
 void renderScene(); // Função de renderização da cena
-void keyboard(unsigned char key, int x, int y); // Função de entrada do teclado
+void setup_lighting();
+
+
+void handleKeyDown(unsigned char key, int x, int y); // Função de entrada do teclado
+void handleKeyUp(unsigned char key, int x, int y); // Função de entrada do teclado
+
+void update();
+
+void movSpeed();
+void move();
 
 //PARTES LAB
 void parede();
 void chao();
 
+//OBJETOS
 //OBJETOS
 void fechadura();
 void porta();
@@ -43,9 +86,37 @@ void portaArmario();
 void frigobar();
 void portaFrigobar();
 void ventilador();
+void abajur();
 
 //PARALELEPIPEDO
 void paralelepipedo(float comprimento, float altura, float profundidade);
+void plano();
+
+
+
+void mouseMove(int x, int y);
+
+void carregaTextura(GLuint tex_id, const char* filePath) {
+    unsigned char* imgData;
+    int largura, altura, canais;
+
+    imgData = stbi_load(filePath, &largura, &altura, &canais, 4);
+
+    if (imgData) {
+        glBindTexture(GL_TEXTURE_2D, tex_id);
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, largura, altura, 0, GL_RGBA, GL_UNSIGNED_BYTE, imgData);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_LINEAR);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_LINEAR);
+
+        stbi_image_free(imgData);
+    } else {
+        printf("Erro ao carregar a textura: %s\n", stbi_failure_reason());
+        return;
+    }
+}
 
 int main(int argc, char** argv) {
     glutInit(&argc, argv); // Inicializa o GLUT
@@ -54,21 +125,90 @@ int main(int argc, char** argv) {
     glutCreateWindow("Camera"); // Cria a janela
 
     glutDisplayFunc(renderScene); // Define a função de renderização da cena
-    glutKeyboardFunc(keyboard); // Define a função de entrada do teclado
+    glutKeyboardFunc(handleKeyDown);
+    glutKeyboardUpFunc(handleKeyUp);
+
+    glutMotionFunc(mouseMove); // Define a função de callback de movimento do mouse com um botão pressionado
+     // Registra a função de callback para o mouse
+    glutIdleFunc(update);
 
     glutMainLoop(); // Entra em loop do GLUT
+
+    glDisable(GL_TEXTURE_2D);
+    glDeleteTextures(5, texID);
 
     return 0;
 }
 
+void setup_lighting(){
+    glEnable(GL_LIGHTING); // HABILITA A ILUMINAÇÃO
+    if(abajuresLigado){
+        glEnable(GL_LIGHT0); // HABILITA A LUZ 0
+        glEnable(GL_LIGHT1); // HABILITA A LUZ 1
+        glEnable(GL_LIGHT2); // HABILITA A LUZ 2
+    } else {
+        glDisable(GL_LIGHT0);
+        glDisable(GL_LIGHT1);
+        glDisable(GL_LIGHT2);
+    }
+    glEnable(GL_COLOR_MATERIAL); // Habilita a cor de material
+    glColorMaterial(GL_FRONT, GL_AMBIENT_AND_DIFFUSE);
+
+    float light_ambient[] = { 0.2f, 0.2f, 0.2f}; // Inicialmente vale 0.2f, 0.2f, 0.2f
+    glLightfv(GL_LIGHT0, GL_AMBIENT, light_ambient);
+
+    // float light_diffuse[] = { 0.2f, 0.2f, 0.2f }; // luz branca
+    // glLightfv(GL_LIGHT0, GL_DIFFUSE, light_diffuse);
+
+    // float light_specular[] = { 0.2f, 0.2f, 0.2f }; // luz branca
+    // glLightfv(GL_LIGHT0, GL_SPECULAR, light_specular);
+    // LUZ DA PRIMEIRA LUMINARIA
+    float light_position[] = { 6.5f,-1.0f,-5.0f, 1.0 };
+    float spot_direction[] = { -1.f, -4.0f, -1.0f };
+    float spot_cutoff[] = { 30.0f };
+    float spot_diffuse[] = { 1.0f, 1.0f, 0.0f };
+    glLightfv(GL_LIGHT0, GL_DIFFUSE, spot_diffuse);
+    glLightfv(GL_LIGHT0, GL_SPECULAR, spot_diffuse);
+    glLightfv(GL_LIGHT0, GL_POSITION, light_position);
+    glLightfv(GL_LIGHT0, GL_SPOT_DIRECTION, spot_direction);
+    glLightfv(GL_LIGHT0, GL_SPOT_CUTOFF, spot_cutoff);
+    // LUZ DA SEGUNDA LUMINARIA
+    float light1_position[] = { 6.5f + 25.0f,0.0f,- 60.0f, 1.0 };
+    float spot1_direction[] = { -1.f,-4.0f, -1.0f};
+    float spot1_cutoff[] = { 45.0f };
+    float spot1_diffuse[] = { 1.0f, 0.0f, 0.0f };
+    glLightfv(GL_LIGHT1, GL_DIFFUSE, spot1_diffuse);
+    glLightfv(GL_LIGHT1, GL_SPECULAR, spot1_diffuse);
+    glLightfv(GL_LIGHT1, GL_POSITION, light1_position);
+    glLightfv(GL_LIGHT1, GL_SPOT_DIRECTION, spot1_direction);
+    glLightfv(GL_LIGHT1, GL_SPOT_CUTOFF, spot1_cutoff);
+    // LUZ DA SEGUNDA LUMINARIA
+    float light2_position[] = { 56.0f,-0.0f,-35.0f, 1.0 };
+    float spot2_direction[] = { -1.f,-4.0f, -1.0f};
+    float spot2_cutoff[] = { 45.0f };
+    float spot2_diffuse[] = { 0.0f, 1.0f, 1.0f };
+    glLightfv(GL_LIGHT2, GL_DIFFUSE, spot2_diffuse);
+    glLightfv(GL_LIGHT2, GL_SPECULAR, spot2_diffuse);
+    glLightfv(GL_LIGHT2, GL_POSITION, light2_position);
+    glLightfv(GL_LIGHT2, GL_SPOT_DIRECTION, spot2_direction);
+    glLightfv(GL_LIGHT2, GL_SPOT_CUTOFF, spot2_cutoff);
+
+}
+
 void init(){ // Função de inicialização
+    glEnable(GL_DEPTH_TEST); // HABILITA O TESTE DE PROFUNDIDADE
+
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); // Limpa o buffer de cor e o buffer de profundidade
-    glEnable(GL_DEPTH_TEST); // Habilita o teste de profundidade
+    //TEXTURAS
+    glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
+    glGenTextures(5, texID);
+    carregaTextura(texID[0], "texturas/floor2.jpg");
+
+    setup_lighting();
 }
 
 void renderScene() { // Função de renderização da cena
     init(); // Inicializa a cena
-
     glMatrixMode(GL_PROJECTION); // Seleciona a matriz de projeção
     glLoadIdentity(); // Carrega a matriz identidade na matriz de projeção
     gluPerspective(45.0f, (float)width / (float)height, 0.1f, 100.0f); // Define a perspectiva da cena, com um campo de visão de 45 graus, razão de aspecto (float)width / (float)height, uma distância de plano próximo de 0,1 unidades e uma distância de plano distante de 100 unidades.
@@ -81,12 +221,20 @@ void renderScene() { // Função de renderização da cena
     gluLookAt(cameraPosX, cameraPosY, cameraPosZ, cameraPosX + cameraFrontX, cameraPosY + cameraFrontY, cameraPosZ + cameraFrontZ, cameraUpX, cameraUpY, cameraUpZ); // Define a posição da câmera e para onde ela está olhando.
 
     // Desenhe a renderScene aqui
-    // Desenhe um cubo colorido
-
-    chao();
+    glEnable(GL_TEXTURE_2D);
+    chao(texID[0]);
+    glDisable(GL_TEXTURE_2D);
     parede();
     fechadura();
+
+    glPushMatrix();
+    if(portaAberta){
+        glRotatef(90.0, 0.0f, 1.0f, 0.0f);
+        glTranslatef(6.0f,0.0f,-25.0f);
+    }
     porta();
+    glPopMatrix();
+    // plano();
     janelaEsquerda();
     janelaDireita();
     // CADEIRAS A DIREITA
@@ -341,84 +489,61 @@ void renderScene() { // Função de renderização da cena
     glTranslatef(-15.0f, +5.0f-2.0f, -40.0f);
     armario();
     glPopMatrix();
+
     //ventilador 1
     glPushMatrix();
     glTranslatef(0.0f,6.0f,-40.0f);
     ventilador();
     glPopMatrix();
+
     //ventilador 2
     glPushMatrix();
     glTranslatef(40.0f,6.0f,-40.0f);
     ventilador();
     glPopMatrix();
+    // PRIMEIRA LUMINARIA
+    glPushMatrix();
+    glTranslatef(6.5f,-3.0f,-5.0f);
+    glRotatef(45.0f,0.0f,1.0f,0.0f);
+    abajur();
+    glPopMatrix();
+    // ESFERA EM BAIXO DA PRIMEIRA LUMINARIA
+    glPushMatrix();
+    glTranslatef(6.5 - 2.f,-3.0f - 1.f,-5.0f - 2.0f);
+    glutSolidSphere(0.2f, 100.f, 200.f);
+    glPopMatrix();
+    // SEGUNDA LUMINARIA
+    glPushMatrix();
+    glTranslatef(6.5f + 25.0f,-3.0f,- 60.0f);
+    glRotatef(120.0f,0.0f,1.0f,0.0f);
+    abajur();
+    glPopMatrix();
+    // ESFERA EM BAIXO DA SEGUNDA LUMINARIA
+    glPushMatrix();
+    glTranslatef(6.5f + 25.0f - 2.f,-3.0f - 1.f,- 2.0f - 60.0f + 4.0f);
+    glutSolidSphere(0.2f, 100.f, 200.f);
+    glPopMatrix();
+    // TERCEIRA LUMINARIA
+    glPushMatrix();
+    glTranslatef(56.0f,-3.0f,-35.0f);
+    glRotatef(90.0f,0.0f,1.0f,0.0f);
+    abajur();
+    glPopMatrix();
+    // ESFERA EM BAIXO DA TERCEIRA LUMINARIA
+    glPushMatrix();
+    glTranslatef(56.0f - 2.f,-3.0f - 1.f,-35.0f);
+    glutSolidSphere(0.2f, 100.f, 200.f);
+    glPopMatrix();
+
+    // glPushMatrix();
+    // glColor3f(1.0,0.0,0.0);
+    // glTranslatef(6.5f + 25.0f,-2.0,- 60.0f);
+    // glutSolidSphere(0.2f, 100.f, 200.f);
+    // glPopMatrix();
 
 
 
     glutSwapBuffers(); // Troca os buffers de vídeo utilizados para renderizar a cena
-}
-
-void keyboard(unsigned char key, int x, int y) {
-
-    float cameraSpeed = 1.0f; // Velocidade de movimento da câmera
-    float cameraRotationSpeed = 5.0f; // Velocidade de rotação da câmera
-
-    switch (key) {
-    // Aperte d ou D, para movimentar a camera para direita
-    case 'd':
-    case 'D':
-        cameraPosX -= cameraSpeed * cameraFrontZ;
-        cameraPosZ += cameraSpeed * cameraFrontX;
-        break;
-    // Aperte a ou A, para movimentar a camera para esquerda
-    case 'a':
-    case 'A':
-        cameraPosX += cameraSpeed * cameraFrontZ;
-        cameraPosZ -= cameraSpeed * cameraFrontX;
-        break;
-    // Aperte w ou W, para movimentar a camera para frente
-    case 'w':
-    case 'W':
-        cameraPosX += cameraSpeed * cameraFrontX;
-        cameraPosZ += cameraSpeed * cameraFrontZ;
-        break;
-    // Aperte s ou S, para movimentar a camera para trás
-    case 's':
-    case 'S':
-        cameraPosX -= cameraSpeed * cameraFrontX;
-        cameraPosZ -= cameraSpeed * cameraFrontZ;
-        break;
-    // Aperte q ou Q, para rotacionar a câmera para a esquerda
-    case 'e':
-    case 'E':
-        cameraRotateX += cameraRotationSpeed;
-        break;
-    // Aperte e ou E, para rotacionar a câmera para a direita
-    case 'q':
-    case 'Q':
-        cameraRotateX -= cameraRotationSpeed;
-        break;
-    // Aperte b ou B, para rotacionar a câmera para a baixo
-    case 'b':
-    case 'B':
-        cameraRotateY += cameraRotationSpeed;
-        if (cameraRotateY > 89.0f) {
-            cameraRotateY = 89.0f;
-        }
-        break;
-    // Aperte c ou C, para rotacionar a câmera para a cima
-    case 'c':
-    case 'C':
-        cameraRotateY -= cameraRotationSpeed;
-        if (cameraRotateY < -89.0f) {
-            cameraRotateY = -89.0f;
-        }
-        break;
-    case 27:
-        exit(0);
-        break;
-    }
-    glutPostRedisplay(); 
-
 }
 
 //OBJETOS
@@ -652,15 +777,16 @@ void parede(){
     glPopMatrix();
 }
 
-void chao(){
+void chao(GLuint texID){
     glPushMatrix();
+    glBindTexture(GL_TEXTURE_2D, texID);
     glBegin(GL_QUADS);
         //Face de baixo
         glColor3f(0.9,0.9,0.9);
-        glVertex3f(-20.0,-10.0,larguraMaxima);
-        glVertex3f(-20.0,-10.0,10.0);
-        glVertex3f(comprimentoMaximo,-10.0,10.0);
-        glVertex3f(comprimentoMaximo,-10.0,larguraMaxima);
+        glTexCoord2f(0.0,0.0); glVertex3f(-20.0,-10.0,larguraMaxima);
+        glTexCoord2f(1.0,0.0); glVertex3f(-20.0,-10.0,10.0);
+        glTexCoord2f(1.0,1.0); glVertex3f(comprimentoMaximo,-10.0,10.0);
+        glTexCoord2f(0.0,1.0); glVertex3f(comprimentoMaximo,-10.0,larguraMaxima);
     glEnd();
     glPopMatrix();
 };
@@ -705,6 +831,7 @@ void porta(){
     glPushMatrix();
     glBegin(GL_QUADS);
         glColor3f(0.6f, 0.3f, 0.1f);
+        glRotatef(anguloPorta, 0.0,1.0,0.0);
         //face frente
         glVertex3f(-16.0,6.0,10.0);
         glVertex3f(-16.0,-10.0,10.0);
@@ -1041,9 +1168,176 @@ void portaFrigobar(){
 void ventilador(){
     glPushMatrix();
     glColor3f(0.4, 0.2, 0.0);
+    glRotatef(anguloVentilador, 0.0, 1.0, 0.0);
     paralelepipedo(2.0f,0.5f,12.0f);
     paralelepipedo(12.0f,0.5f,2.0f);
+    glPushMatrix();
+    glPopMatrix();
+
     glTranslatef(0.0f,2.0f,0.0f);
     paralelepipedo(0.2f,4.0f,0.2f);
     glPopMatrix();
+}
+
+void abajur(){
+    // Desenhar a geometria do abajur
+    glColor3f(1.f, 1.f, 1.f);  // Cor do abajur
+
+    // Base do abajur
+    glPushMatrix();
+    glTranslatef(0.0f,-1.0f,0.0f);
+    paralelepipedo(1.0f,0.2f,1.0f);
+    glPopMatrix();
+    // Tronco do abajur
+    glColor3f(0.f, 0.f, 0.6f);
+    glPushMatrix();
+    glTranslatef(0.0f,-0.25f,0.0f);
+    paralelepipedo(0.2f,1.75f,0.2f);
+    glPopMatrix();
+
+    glColor3f(1.f, 1.f, 1.f);
+    // Parte superior do abajur (cone)
+    GLUquadricObj* cone = gluNewQuadric();
+    gluQuadricDrawStyle(cone, GLU_FILL);
+    glPushMatrix();
+    glRotatef(-45.0,1.0,0.0,0.0);
+    glTranslatef(0.0f,0.6f,-0.5f);
+    gluCylinder(cone, 0.5f, 0.2f, 1.0f, 20, 1);
+    glTranslatef(0.0f,0.0f,1.f);
+    gluDisk(cone, 0.0f, 0.2f, 20, 1);
+    glPopMatrix();
+
+    // Lampada em esfera
+    // glColor3f(1.0f,1.0f,1.0f);
+    // GLUquadricObj* sphere = gluNewQuadric();
+    // gluQuadricDrawStyle(sphere, GLU_FILL);
+    // glPushMatrix();
+    // glRotatef(15.0,-1.0,1.0,0.0);
+    // glTranslatef(0.0f,0.6f,-0.2f);
+    // gluSphere(sphere, 0.25f, 20, 20);
+    // glPopMatrix();
+
+}
+
+void handleKeyDown(unsigned char key, int x, int y) {
+    if (glutGetModifiers() == GLUT_ACTIVE_SHIFT) {
+        run = TRUE;
+    } 
+    if (key == 'w' || key == 'W'){
+        front = TRUE;
+    }
+    if(key == 's' || key == 'S'){
+        back = TRUE;
+    }
+    if(key == 'd' || key == 'D'){
+        right = TRUE;
+    }
+    if(key == 'a' || key == 'A'){
+        left = TRUE;
+    }
+    if(key == 'f' || key == 'F'){
+        if(portaAberta){
+            portaAberta = FALSE;
+        }
+        else{
+            portaAberta = TRUE;
+        }
+    }
+    if(key == 'c' || key == 'C'){
+        if(ventiladorLigado){
+            ventiladorLigado = FALSE;
+        }
+        else{
+            ventiladorLigado = TRUE;
+        }
+    }
+    if(key == 'k' || key == 'K'){
+        if(abajuresLigado){
+            abajuresLigado = FALSE;
+        }
+        else{
+            abajuresLigado = TRUE;
+        }
+    }
+}
+
+void handleKeyUp(unsigned char key, int x, int y) {
+    if (glutGetModifiers() == GLUT_ACTIVE_SHIFT) {
+        run = FALSE;
+    } 
+    if(key == 'w' || key == 'W'){
+        front = FALSE;
+    }
+    if(key == 's' || key == 'S'){
+        back = FALSE;
+    }
+    if(key == 'd' || key == 'D'){
+        right = FALSE;
+    }
+    if(key == 'a' || key == 'A'){
+        left = FALSE;
+    }
+}
+
+void update(){
+    move();
+    movSpeed();
+    
+    if(ventiladorLigado){
+        anguloVentilador+=1.0;
+        if(anguloVentilador == 360){
+            anguloVentilador =0;
+        }
+    }
+
+    glutPostRedisplay(); 
+}
+
+void movSpeed(){
+    if(run){
+        cameraSpeed = 0.4f; // Velocidade de movimento da câmera
+    }
+    else{
+        cameraSpeed = 0.1f; // Velocidade de movimento da câmera
+    }
+}
+
+void move() {
+    
+    if(front){
+        cameraPosX += cameraSpeed * cameraFrontX;
+        cameraPosZ += cameraSpeed * cameraFrontZ;
+    }
+    if(back){
+        cameraPosX -= cameraSpeed * cameraFrontX;
+        cameraPosZ -= cameraSpeed * cameraFrontZ;
+    }
+    if(right){
+        cameraPosX -= cameraSpeed * cameraFrontZ;
+        cameraPosZ += cameraSpeed * cameraFrontX;
+    }
+    if(left){
+        cameraPosX += cameraSpeed * cameraFrontZ;
+        cameraPosZ -= cameraSpeed * cameraFrontX;
+    }
+}
+
+void mouseMove(int x, int y)
+{
+    
+    if(x < positionMouseX){
+        cameraRotateX += mouseRateMove;
+    }
+    else if(x > positionMouseX){
+        cameraRotateX -= mouseRateMove;
+    }
+    else if(height - y < positionMouseY){
+        cameraRotateY -= mouseRateMove;
+    }
+    else if(height - y > positionMouseY){
+        cameraRotateY += mouseRateMove;
+    }
+
+    positionMouseX = x;
+    positionMouseY = height - y;
 }
