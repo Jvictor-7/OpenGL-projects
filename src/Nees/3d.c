@@ -8,8 +8,22 @@
 #define FALSE 0
 #define TRUE 1
 
+
+typedef struct {
+    float x;
+    float y;
+    float z;
+} vec3;
+float globalEnvironmentRate = 0.7f;
+
 typedef int bool;
 
+const GLfloat PI = 3.14159265359;
+const float radiusSun = 10.0f;
+float lightPosition[] =	{0.f, 100.f, 0.f, 1.f};    
+
+float hour = 0.0;
+float min = 0.0;
 int width = 800; //largura da janela
 int height = 600; // altura da janela
 
@@ -31,8 +45,12 @@ float anguloPorta = 0.0;
 float xPorta = -12.0f;
 float zPorta = 9.0;
 
-float cameraSpeed = 0.1f; // Velocidade de movimento da câmera
 
+int lastX = 0, lastY = 0;
+float cameraSpeed = 0.1f;
+
+float rotateSun = 0.0;
+float rotateSunRate = 0.1;
 
 float cameraPosX = -10.0f; // posição da câmera no eixo X
 float cameraPosY = 0.0f; // posição da câmera no eixo Y
@@ -60,6 +78,152 @@ float espessuraParede = 1.5f;
 
 //TEXTURAS
 GLuint texID[8];
+
+float luz[13] = {1.f, 1.f, 0.f, 1.f, 1.f, 0.f, 0.f, 0.f, 0.f, 1.f, 1.f, 0.f, 0.f};
+float padrao[13] = {0.2f, 0.2f, 0.2f, 0.6f, 0.6f, 0.6f, 1.0f, 1.0f,1.0f, 0.0f, 0.0f, 0.0f, 1.0f};
+float branco[13] = {1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f,1.0f, 1.0f, 1.0f, 1.0f, 1.0f};
+
+
+float ambient[4];
+float diffuse[4];
+float specular[4];
+float emission[4];
+float shininess;
+
+vec3 vertex(float x, float y, float z){
+    vec3 v;
+
+    v.x = x;
+    v.y = y;
+    v.z = z;
+    return v;
+}
+
+void sphere(GLfloat raio, GLuint nStacks, GLuint nSectors)
+{
+	GLuint i, j;
+	vec3* pontos = (vec3*)malloc(sizeof(vec3) * (nStacks + 1) * nSectors);
+	GLuint** indices = (GLuint**)malloc(sizeof(GLuint*) * nStacks);
+
+	GLfloat deltaPhi = PI / nStacks;
+	GLfloat deltaTheta = 2 * PI / nSectors;
+
+	for (i = 0; i <= nStacks; i++)
+	{
+		GLfloat phi = -PI / 2.0 + i * deltaPhi;
+		GLfloat temp = raio * cos(phi);
+		GLfloat y = raio * sin(phi);
+		
+		indices[i] = (GLuint*)malloc(sizeof(GLuint) * nSectors);
+
+		for (j = 0; j < nSectors; j++)
+		{
+			GLfloat theta = j * deltaTheta;
+			GLfloat x = temp * sin(theta);
+			GLfloat z = temp * cos(theta);
+
+			pontos[i * nSectors + j].x = x;
+			pontos[i * nSectors + j].y = y;
+			pontos[i * nSectors + j].z = z;
+
+			GLuint index = i * nSectors + j;
+			indices[i][j] = index;
+		}
+	}
+
+    glPolygonMode(GL_FRONT, GL_FILL);
+	glFrontFace(GL_CW);
+
+	for (i = 0; i < nStacks; i++)
+	{
+		glBegin(GL_TRIANGLE_STRIP);
+
+		for (j = 0; j < nSectors; j++)
+		{
+			GLuint index = indices[i][j];
+
+                glNormal3f(pontos[index].x, pontos[index].y, pontos[index].z);
+
+			glVertex3f(pontos[index].x, pontos[index].y, pontos[index].z);
+			index = indices[i + 1][j];
+
+
+			glVertex3f(pontos[index].x, pontos[index].y, pontos[index].z);
+                glNormal3f(pontos[index].x, pontos[index].y, pontos[index].z);
+
+
+			if (j == nSectors - 1)
+			{
+				index = indices[i][0];
+                glNormal3f(pontos[index].x, pontos[index].y, pontos[index].z);
+				glVertex3f(pontos[index].x, pontos[index].y, pontos[index].z);
+
+				index = indices[i + 1][0];
+				glVertex3f(pontos[index].x, pontos[index].y, pontos[index].z);
+                glNormal3f(pontos[index].x, pontos[index].y, pontos[index].z);
+
+			}
+		}
+
+		glEnd();
+	}
+
+	for (i = 0; i <= nStacks; i++){
+		free(indices[i]);
+    }
+	free(indices);
+	free(pontos);
+}
+
+void Rectangle(vec3 p1, vec3 p2, vec3 p3, vec3 p4, int faces)
+{
+    float delta = 1.f / (float)faces;
+    vec3** square = malloc((faces + 1) * sizeof(vec3*));
+    for (int i = 0; i <= faces; i++) {
+        square[i] = malloc((faces + 1) * sizeof(vec3));
+    }
+
+    for (float i = 0; i <= 1; i += delta) {
+        vec3 q1 = {p1.x * (1 - i) + p2.x * i, p1.y * (1 - i) + p2.y * i, p1.z * (1 - i) + p2.z * i};
+        vec3 qn = {p4.x * (1 - i) + p3.x * i, p4.y * (1 - i) + p3.y * i, p4.z * (1 - i) + p3.z * i};
+        vec3* lines = malloc((faces + 1) * sizeof(vec3));
+
+        for (float j = 0; j <= 1; j += delta) {
+            vec3 qj = {q1.x * (1 - j) + qn.x * j, q1.y * (1 - j) + qn.y * j, q1.z * (1 - j) + qn.z * j};
+            lines[(int)(j * faces)] = qj;
+        }
+
+        square[(int)(i * faces)] = lines;
+    }
+
+    for (int i = 0; i < faces; i++) {
+        for (int j = 0; j < faces; j++) {
+            glVertex3fv(&square[i][j].x);
+			glVertex3fv(&square[i + 1][j].x);
+			glVertex3fv(&square[i + 1][j + 1].x);
+			glVertex3fv(&square[i][j + 1].x);
+        }
+    }
+
+    for (int i = 0; i <= faces; i++) {
+        free(square[i]);
+    }
+    free(square);
+}
+
+void renderText(const char* text, int x, int y) {
+    glRasterPos2i(x, y);
+
+     
+
+    // Renderiza cada caractere da string
+    for (int i = 0; text[i] != '\0'; i++)
+    {
+        glutBitmapCharacter(GLUT_BITMAP_HELVETICA_18, text[i]);
+    }
+}
+
+
 
 
 void init(); // Função de inicialização
@@ -102,8 +266,6 @@ void plano();
 
 
 
-void mouseMove(int x, int y);
-
 void carregaTextura(GLuint tex_id, const char* filePath) {
     // Variáveis para armazenar os dados da imagem
     unsigned char* imgData;
@@ -134,6 +296,96 @@ void carregaTextura(GLuint tex_id, const char* filePath) {
     }
 }
 
+void passiveMotionFunc(int x, int y) {
+    int centerX = glutGet(GLUT_WINDOW_WIDTH) / 2;
+    int centerY = glutGet(GLUT_WINDOW_HEIGHT) / 2;
+
+    if(x < centerX){
+        cameraRotateX -= mouseRateMove;
+    }
+    if(x > centerX){
+        cameraRotateX += mouseRateMove;
+    }
+    if(height - y < centerY){
+        cameraRotateY += mouseRateMove;
+    }
+    if(height - y > centerY){
+        cameraRotateY -= mouseRateMove;
+    }
+
+    if (x != centerX || y != centerY) {
+        glutWarpPointer(centerX, centerY);
+        lastX = centerX;
+        lastY = centerY;
+    }
+}
+
+void timer(){
+    min += (rotateSunRate*360)/(24*3.7);
+    if(min >= 60){
+        hour++;
+        min = 0;
+    }
+
+    if(hour >= 24){
+        hour = 0;
+    }
+    if(hour >= 18 && hour <=23){
+        globalEnvironmentRate += 0.0005;
+
+        if(globalEnvironmentRate >= 0.7){
+            globalEnvironmentRate = 0.7;
+        }
+    }
+
+    if(hour >= 0 && hour <=6){
+        globalEnvironmentRate -= 0.0005;
+        if(globalEnvironmentRate <= 0.2){
+            globalEnvironmentRate = 0.2;
+        }
+    }
+}
+
+void loadMaterial(float material[]){
+
+    ambient[0] = material[0]; ambient[1] = material[1]; ambient[2] = material[2]; ambient[3] = 1.f;
+    diffuse[0] = material[3]; diffuse[1] = material[4]; diffuse[2] = material[5]; diffuse[3] = 1.f;
+    specular[0] = material[6]; specular[1] = material[7]; specular[2] = material[8]; specular[3] = 1.f;
+    emission[0] = material[9]; emission[1] = material[10]; emission[2] = material[11];
+
+	shininess = material[12];
+
+	glMaterialfv(GL_FRONT, GL_AMBIENT, ambient);
+	glMaterialfv(GL_FRONT, GL_DIFFUSE, diffuse);
+	glMaterialfv(GL_FRONT, GL_SPECULAR, specular);
+	glMaterialf(GL_FRONT, GL_SHININESS, 128 * shininess);
+	glMaterialfv(GL_FRONT, GL_EMISSION, emission);
+}
+
+void render2d() {
+    glMatrixMode(GL_PROJECTION);
+    glPushMatrix();
+    glLoadIdentity();
+    glOrtho(0, glutGet(GLUT_WINDOW_WIDTH), 0, glutGet(GLUT_WINDOW_HEIGHT), -1, 1);
+    glMatrixMode(GL_MODELVIEW);
+    glPushMatrix();
+    glLoadIdentity();
+    char str1[10];
+    sprintf(str1, "%1.0f", hour);
+    char str2[10];
+    sprintf(str2, "%1.0f", min);
+
+    loadMaterial(branco);
+    renderText(str1, 30, height - 30);
+    renderText(":", 53, height - 30);
+    renderText(str2, 70, height - 30);
+
+    glPopMatrix();
+    glMatrixMode(GL_PROJECTION);
+    glPopMatrix();
+    glMatrixMode(GL_MODELVIEW);
+}
+
 int main(int argc, char** argv) {
     glutInit(&argc, argv); // Inicializa o GLUT
     glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGBA | GLUT_DEPTH); // Define o modo de exibição
@@ -144,7 +396,8 @@ int main(int argc, char** argv) {
     glutKeyboardFunc(handleKeyDown);
     glutKeyboardUpFunc(handleKeyUp);
 
-    glutMotionFunc(mouseMove); // Define a função de callback de movimento do mouse com um botão pressionado
+    glutPassiveMotionFunc(passiveMotionFunc);
+    glutSetCursor(GLUT_CURSOR_NONE);
      // Registra a função de callback para o mouse
     glutIdleFunc(update);
 
@@ -153,11 +406,22 @@ int main(int argc, char** argv) {
     glDisable(GL_TEXTURE_2D);
     glDeleteTextures(7, texID);
 
+    
+
     return 0;
 }
 
+
 void setup_lighting(){
     glEnable(GL_LIGHTING); // HABILITA A ILUMINAÇÃO
+    glShadeModel(GL_SMOOTH);
+    glEnable(GL_LIGHT7); // HABILITA A LUZ 7
+
+    float globalLighting[4] = {globalEnvironmentRate, globalEnvironmentRate, globalEnvironmentRate, 1.f};
+    
+    glLightModeli(GL_LIGHT_MODEL_LOCAL_VIEWER, GL_TRUE);
+    glLightModelfv(GL_LIGHT_MODEL_AMBIENT, globalLighting);
+
     if(abajuresLigado){
         glEnable(GL_LIGHT0); // HABILITA A LUZ 0
         glEnable(GL_LIGHT1); // HABILITA A LUZ 1
@@ -169,21 +433,17 @@ void setup_lighting(){
     }
     if(lampadasLigado){
         glEnable(GL_LIGHT3); // HABILITA A LUZ 3
-        glEnable(GL_LIGHT4); // HABILITA A LUZ 4
-        glEnable(GL_LIGHT5); // HABILITA A LUZ 5
-        glEnable(GL_LIGHT6); // HABILITA A LUZ 6
+    
 
     } else {
         glDisable(GL_LIGHT3);
-        glDisable(GL_LIGHT4);
-        glDisable(GL_LIGHT5);
-        glDisable(GL_LIGHT6);
+ 
     }
     glEnable(GL_COLOR_MATERIAL); // Habilita a cor de material
     glColorMaterial(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE);
 
 
-    float light_ambient[] = { 0.2f, 0.2f, 0.2f}; // Inicialmente vale 0.2f, 0.2f, 0.2f
+    float light_ambient[] = { 0.3f, 0.3f, 0.3f}; // Inicialmente vale 0.2f, 0.2f, 0.2f
     glLightfv(GL_LIGHT0, GL_AMBIENT, light_ambient);
 
     // float light_diffuse[] = { 0.2f, 0.2f, 0.2f }; // luz branca
@@ -221,47 +481,30 @@ void setup_lighting(){
     glLightfv(GL_LIGHT2, GL_POSITION, light2_position);
     glLightfv(GL_LIGHT2, GL_SPOT_DIRECTION, spot2_direction);
     glLightfv(GL_LIGHT2, GL_SPOT_CUTOFF, spot2_cutoff);
+
+
     // LUZ DO TETO 1
     float light3_position[] = { 10.0f,10.0f,-20.0f, 1.0 };
-    float spot3_direction[] = { -1.f,-4.0f, -1.0f};
-    float spot3_cutoff[] = { 80.0f };
-    float spot3_diffuse[] = { 1.0f, 1.0f, 1.0f };
-    glLightfv(GL_LIGHT3, GL_DIFFUSE, spot3_diffuse);
-    glLightfv(GL_LIGHT3, GL_SPECULAR, spot3_diffuse);
+
+    float light6[3][4] = {
+				{0.3f, 0.3f, 0.3f, 1.f},
+				{0.2f, 0.2f, 0.2f, 1.f},
+				{0.1f,  0.1f,  0.1f, 1.f },
+	};
     glLightfv(GL_LIGHT3, GL_POSITION, light3_position);
-    glLightfv(GL_LIGHT3, GL_SPOT_DIRECTION, spot3_direction);
-    glLightfv(GL_LIGHT3, GL_SPOT_CUTOFF, spot3_cutoff);
+    glLightfv(GL_LIGHT3, GL_AMBIENT,  &light6[0][0]);
+
     // LUZ DO TETO 2
     float light4_position[] = { 10.0f,10.0f,-60.0f, 1.0 };
-    float spot4_direction[] = { -1.f,-4.0f, -1.0f};
-    float spot4_cutoff[] = { 80.0f };
-    float spot4_diffuse[] = { 1.0f, 1.0f, 1.0f };
-    glLightfv(GL_LIGHT4, GL_DIFFUSE, spot4_diffuse);
-    glLightfv(GL_LIGHT4, GL_SPECULAR, spot4_diffuse);
     glLightfv(GL_LIGHT4, GL_POSITION, light4_position);
-    glLightfv(GL_LIGHT4, GL_SPOT_DIRECTION, spot4_direction);
-    glLightfv(GL_LIGHT4, GL_SPOT_CUTOFF, spot4_cutoff);
     // LUZ DO TETO 3
     float light5_position[] = { 50.0f,10.0f,-20.0f, 1.0 };
-    float spot5_direction[] = { -1.f,-4.0f, -1.0f};
-    float spot5_cutoff[] = { 80.0f };
-    float spot5_diffuse[] = { 1.0f, 1.0f, 1.0f };
-    glLightfv(GL_LIGHT5, GL_DIFFUSE, spot5_diffuse);
-    glLightfv(GL_LIGHT5, GL_SPECULAR, spot5_diffuse);
+
     glLightfv(GL_LIGHT5, GL_POSITION, light5_position);
-    glLightfv(GL_LIGHT5, GL_SPOT_DIRECTION, spot5_direction);
-    glLightfv(GL_LIGHT5, GL_SPOT_CUTOFF, spot5_cutoff);
     // LUZ DO TETO 4
     float light6_position[] = { 50.0f,10.0f,-60.0f, 1.0 };
-    float spot6_direction[] = { -1.f,-4.0f, -1.0f};
-    float spot6_cutoff[] = { 80.0f };
-    float spot6_diffuse[] = { 1.0f, 1.0f, 1.0f };
-    glLightfv(GL_LIGHT6, GL_DIFFUSE, spot6_diffuse);
-    glLightfv(GL_LIGHT6, GL_SPECULAR, spot6_diffuse);
-    glLightfv(GL_LIGHT6, GL_POSITION, light6_position);
-    glLightfv(GL_LIGHT6, GL_SPOT_DIRECTION, spot6_direction);
-    glLightfv(GL_LIGHT6, GL_SPOT_CUTOFF, spot6_cutoff);
 
+    glLightfv(GL_LIGHT6, GL_POSITION, light6_position);
 }
 
 void init(){ // Função de inicialização
@@ -287,8 +530,8 @@ void renderScene() { // Função de renderização da cena
     init(); // Inicializa a cena
     glMatrixMode(GL_PROJECTION); // Seleciona a matriz de projeção
     glLoadIdentity(); // Carrega a matriz identidade na matriz de projeção
-    gluPerspective(45.0f, (float)width / (float)height, 0.1f, 100.0f); // Define a perspectiva da cena, com um campo de visão de 45 graus, razão de aspecto (float)width / (float)height, uma distância de plano próximo de 0,1 unidades e uma distância de plano distante de 100 unidades.
-
+    gluPerspective(45.0f, (float)width / (float)height, 0.1f, 400.0f); // Define a perspectiva da cena, com um campo de visão de 45 graus, razão de aspecto (float)width / (float)height, uma distância de plano próximo de 0,1 unidades e uma distância de plano distante de 100 unidades.
+    render2d();
     glMatrixMode(GL_MODELVIEW); // Seleciona a matriz de modelo e visão
     glLoadIdentity(); // Carrega a matriz identidade
     
@@ -296,7 +539,23 @@ void renderScene() { // Função de renderização da cena
     glRotatef(cameraRotateX, 0.0f, 1.0f, 0.0f); // Rotaciona a cena em relação ao eixo X de acordo com a variável cameraRotateX
     gluLookAt(cameraPosX, cameraPosY, cameraPosZ, cameraPosX + cameraFrontX, cameraPosY + cameraFrontY, cameraPosZ + cameraFrontZ, cameraUpX, cameraUpY, cameraUpZ); // Define a posição da câmera e para onde ela está olhando.
 
+    rotateSun += rotateSunRate;
+    if(rotateSun >= 360){
+        rotateSun = 0;;
+    }
+    timer();
+
     // Desenhe a renderScene aqui
+
+    loadMaterial(luz);
+    glPushMatrix();
+        glRotatef(rotateSun, 1.0f, 0.0f, 0.0f);
+        glTranslatef (lightPosition[0], lightPosition[1], lightPosition[0]);
+        sphere(radiusSun, 50, 20);
+        glLightfv(GL_LIGHT7, GL_POSITION, lightPosition);
+    glPopMatrix();
+    loadMaterial(padrao);
+
     glEnable(GL_TEXTURE_2D);
     chao(texID[0]);
     glDisable(GL_TEXTURE_2D);
@@ -306,7 +565,20 @@ void renderScene() { // Função de renderização da cena
     glEnable(GL_TEXTURE_2D);
     fechadura(texID[7]);
     glDisable(GL_TEXTURE_2D);
+    vec3 solo[4] = {
+        vertex(400.0, 0.0, 400.0),
+        vertex(-400.0, 0.0, 400.0),
+        vertex(-400.0, 0.0, -400.0),
+        vertex(400.0, 0.0, -400.0)
+    };
 
+    loadMaterial(padrao);
+
+    glPushMatrix();
+        glBegin(GL_QUADS);
+            Rectangle(solo[0], solo[1], solo[2], solo[3], 8);
+        glEnd();
+    glPopMatrix();
     glPushMatrix();
     if(portaAberta){
         glRotatef(90.0, 0.0f, 1.0f, 0.0f);
@@ -666,6 +938,11 @@ void renderScene() { // Função de renderização da cena
 
     //LAMPADAS TETO
     //lampada 1
+    if(lampadasLigado){
+        loadMaterial(branco);  
+    }
+    glPolygonMode(GL_FRONT, GL_FILL);
+
     glPushMatrix();
     glTranslatef(0.0f,8.0f,-20.0f);
     glColor3f(1.0f,1.0f,1.0f);
@@ -1671,6 +1948,19 @@ void handleKeyDown(unsigned char key, int x, int y) {
             janelaAberta = TRUE;
         }
     }
+    if(key == 27){
+        exit(0);
+    }
+    if(key == 'q' || key == 'Q'){
+        if(globalEnvironmentRate < 1){
+            globalEnvironmentRate += 0.1;
+        }
+    }
+    if(key == 'e' || key == 'e'){
+        if(globalEnvironmentRate>0){
+            globalEnvironmentRate -= 0.1;
+        }
+    }
 }
 
 void handleKeyUp(unsigned char key, int x, int y) {
@@ -1777,24 +2067,4 @@ void move() {
         cameraPosX += cameraSpeed * cameraFrontZ;
         cameraPosZ -= cameraSpeed * cameraFrontX;
     }
-}
-
-void mouseMove(int x, int y)
-{
-    
-    if(x < positionMouseX){
-        cameraRotateX += mouseRateMove;
-    }
-    else if(x > positionMouseX){
-        cameraRotateX -= mouseRateMove;
-    }
-    else if(height - y < positionMouseY){
-        cameraRotateY -= mouseRateMove;
-    }
-    else if(height - y > positionMouseY){
-        cameraRotateY += mouseRateMove;
-    }
-
-    positionMouseX = x;
-    positionMouseY = height - y;
 }
